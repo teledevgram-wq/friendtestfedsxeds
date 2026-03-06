@@ -730,25 +730,28 @@
             });
         }
         
-// Загрузка теста при открытии ссылки - ИСПРАВЛЕНО!
+// Загрузка теста при открытии ссылки
 window.onload = function() {
-    // Получаем данные из Telegram Web App
+    console.log('Window loaded');
+    console.log('Telegram Web App data:', tg.initDataUnsafe);
+    
+    // Получаем параметр из Telegram
     const startParam = tg.initDataUnsafe?.start_param;
-    console.log('Start param:', startParam); // Для отладки
+    console.log('Start param from Telegram:', startParam);
     
-    let testId = null;
-    
-    // Сначала проверяем start_param из Telegram
     if (startParam && startParam.startsWith('test_')) {
-        testId = startParam;
-    } else {
-        // Если нет, проверяем URL параметры
-        const params = new URLSearchParams(window.location.search);
-        testId = params.get('test');
+        console.log('Loading test from start_param:', startParam);
+        loadTest(startParam);
+        return;
     }
     
-    if (testId) {
-        loadTest(testId);
+    // Проверяем URL параметры (для отладки)
+    const params = new URLSearchParams(window.location.search);
+    const urlTestId = params.get('test');
+    console.log('Test ID from URL:', urlTestId);
+    
+    if (urlTestId) {
+        loadTest(urlTestId);
     } else {
         document.getElementById('checkBlock').style.display = 'block';
     }
@@ -914,6 +917,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
