@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friend Test Bot</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Блок проверки подписки */
+        .check-block {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .check-block h2 {
+            margin-bottom: 20px;
+            color: var(--tg-theme-text-color, #000);
+        }
+        
+        .channel-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .channel-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: var(--tg-theme-bg-color, #fff);
+            border-radius: 15px;
+            border: 2px solid var(--tg-theme-button-color, #40a7e3);
+        }
+        
+        .channel-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .channel-emoji {
+            font-size: 24px;
+        }
+        
+        .channel-name {
+            font-weight: bold;
+            color: var(--tg-theme-text-color, #000);
+        }
+        
+        .subscribe-btn {
+            background: var(--tg-theme-button-color, #40a7e3);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+        
+        .check-btn {
+            background: var(--tg-theme-button-color, #40a7e3);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .check-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .success-message {
+            color: #4CAF50;
+            margin: 15px 0;
+            font-weight: bold;
+            padding: 10px;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 10px;
+        }
+        
+        .error-message {
+            color: #f44336;
+            margin: 15px 0;
+            font-weight: bold;
+            padding: 10px;
+            background: rgba(244, 67, 54, 0.1);
+            border-radius: 10px;
+        }
+        
+        .warning-message {
+            color: #ff9800;
+            margin: 15px 0;
+            font-weight: bold;
+            padding: 10px;
+            background: rgba(255, 152, 0, 0.1);
+            border-radius: 10px;
+        }
+        
+        /* Блок конструктора тестов */
+        .constructor-block {
+            display: none;
+        }
+        
+        .constructor-block h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--tg-theme-text-color, #000);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--tg-theme-hint-color, #666);
+            font-weight: 500;
+        }
+        
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--tg-theme-hint-color, #e0e0e0);
+            border-radius: 10px;
+            font-size: 16px;
+            background: var(--tg-theme-bg-color, #fff);
+            color: var(--tg-theme-text-color, #000);
+        }
+        
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--tg-theme-button-color, #40a7e3);
+        }
+        
+        .question-block {
+            background: var(--tg-theme-secondary-bg-color, #f9f9f9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid var(--tg-theme-hint-color, #e0e0e0);
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .option-item input[type="text"] {
+            flex: 1;
+        }
+        
+        .option-item input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .add-question {
+            background: var(--tg-theme-button-color, #4CAF50);
+            color: var(--tg-theme-button-text-color, white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 20px 0;
+            width: 100%;
+        }
+        
+        .delete-question {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .create-test {
+            background: var(--tg-theme-button-color, #667eea);
+            color: var(--tg-theme-button-text-color, white);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .result-link {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--tg-theme-secondary-bg-color, #e8f5e8);
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .result-link input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            margin: 10px 0;
+            background: var(--tg-theme-bg-color, #fff);
+        }
+        
+        .copy-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,.1);
+            border-radius: 50%;
+            border-top-color: var(--tg-theme-button-color, #40a7e3);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Информация о пользователе -->
+        <div id="userInfo" class="user-info"></div>
+        
+        <!-- Блок проверки подписки -->
+        <div id="checkBlock" class="check-block">
+            <h2>📝 Для создания теста подпишись на каналы:</h2>
+            
+            <div class="channel-list">
+                <div class="channel-item">
+                    <div class="channel-info">
+                        <span class="channel-emoji">⭐</span>
+                        <span class="channel-name">@literoom_clorum</span>
+                    </div>
+                    <a href="https://t.me/literoom_clorum" target="_blank" class="subscribe-btn">Перейти</a>
+                </div>
+                
+                <div class="channel-item">
+                    <div class="channel-info">
+                        <span class="channel-emoji">⭐</span>
+                        <span class="channel-name">@bravostarstyr</span>
+                    </div>
+                    <a href="https://t.me/bravostarstyr" target="_blank" class="subscribe-btn">Перейти</a>
+                </div>
+            </div>
+            
+            <div id="messageArea"></div>
+            
+            <button id="checkSubsBtn" class="check-btn" onclick="checkSubscriptions()">Проверить подписку</button>
+        </div>
+        
+        <!-- Блок конструктора тестов -->
+        <div id="constructorBlock" class="constructor-block">
+            <h1>Создай тест на друга</h1>
+            
+            <form id="testForm">
+                <div class="form-group">
+                    <label>Название теста</label>
+                    <input type="text" id="testTitle" placeholder="Например: Насколько хорошо ты меня знаешь?" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Твое имя</label>
+                    <input type="text" id="authorName" placeholder="Твое имя" required>
+                </div>
+                
+                <h2>Вопросы</h2>
+                <div id="questionsContainer"></div>
+                
+                <button type="button" class="add-question" onclick="addQuestion()">Добавить вопрос</button>
+                
+                <h2>Цитаты для результатов</h2>
+                
+                <div class="form-group">
+                    <label>100% (Лучшие друзья)</label>
+                    <textarea id="quote100" rows="2">Вы лучшие и не разлучимые друзья на веки!</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>75-99%</label>
+                    <textarea id="quote75" rows="2">Вы отличные друзья!</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>50-74%</label>
+                    <textarea id="quote50" rows="2">Хорошие друзья, можно и лучше</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>25-49%</label>
+                    <textarea id="quote25" rows="2">Стоит узнать друг друга получше</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>0-24%</label>
+                    <textarea id="quote0" rows="2">Похоже, вы не очень близки</textarea>
+                </div>
+                
+                <button type="submit" class="create-test">🔗 Создать тест</button>
+            </form>
+            
+            <div class="result-link" id="resultLink">
+                <strong>✅ Тест создан!</strong>
+                <p>Отправь ссылку друзьям:</p>
+                <input type="text" id="testUrl" readonly>
+                <button class="copy-btn" onclick="copyUrl()">📋 Скопировать</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+        
+        // Данные пользователя
+        const user = tg.initDataUnsafe?.user;
+        const userId = user?.id;
+        const username = user?.username || user?.first_name || 'Пользователь';
+        
+        // Токен бота - ВСТАВЬ СВОЙ!!!
+        const BOT_TOKEN = '8682719938:AAEFdbbXez_0f7M87QvzcTf5gm7Mybl6Eho'; // ЗАМЕНИ НА СВОЙ!
+        
+        // Каналы для проверки
+        const CHANNELS = [
+            { name: 'literoom_clorum', display: '@literoom_clorum' },
+            { name: 'bravostarstyr', display: '@bravostarstyr' }
+        ];
+        
+        let questionCount = 0;
+        
+        // Показываем информацию о пользователе
+        document.getElementById('userInfo').innerHTML = `${username} (ID: ${userId || 'не определен'})`;
+        
+        // Проверка подписки
+        async function checkSubscriptions() {
+            const messageArea = document.getElementById('messageArea');
+            const checkBtn = document.getElementById('checkSubsBtn');
+            
+            if (!userId) {
+                showMessage('❌ Ошибка: не удалось определить пользователя. Открой бота через Telegram!', 'error');
+                return;
+            }
+            
+            checkBtn.disabled = true;
+            checkBtn.innerHTML = '<span class="loading"></span> Проверка...';
+            
+            try {
+                let allSubscribed = true;
+                let notSubscribed = [];
+                
+                // Проверяем каждый канал
+                for (const channel of CHANNELS) {
+                    showMessage(`⏳ Проверка ${channel.display}...`, 'warning');
+                    
+                    const isSubscribed = await checkChannel(channel.name);
+                    
+                    if (!isSubscribed) {
+                        allSubscribed = false;
+                        notSubscribed.push(channel.display);
+                    }
+                }
+                
+                if (allSubscribed) {
+                    showMessage('✅ Подписка подтверждена! Доступ открыт.', 'success');
+                    
+                    // Показываем конструктор
+                    setTimeout(() => {
+                        document.getElementById('checkBlock').style.display = 'none';
+                        document.getElementById('constructorBlock').style.display = 'block';
+                        
+                        // Добавляем первый вопрос
+                        if (questionCount === 0) addQuestion();
+                        
+                        // Отправляем событие в Telegram
+                        tg.HapticFeedback.notification('success');
+                    }, 1500);
+                } else {
+                    showMessage(`❌ Не подписан на: ${notSubscribed.join(', ')}`, 'error');
+                    tg.HapticFeedback.notification('error');
+                }
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showMessage('❌ Ошибка при проверке. Попробуй позже.', 'error');
+            } finally {
+                checkBtn.disabled = false;
+                checkBtn.innerHTML = '🔍 Проверить подписку';
+            }
+        }
+        
+        // Проверка одного канала
+        async function checkChannel(channelName) {
+            try {
+                // Используем Telegram Bot API напрямую
+                const url = `https://api.telegram.org/bot${BOT_TOKEN}/getChatMember`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: `@${channelName}`,
+                        user_id: userId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.ok) {
+                    const status = data.result.status;
+                    // Статусы, которые считаются подпиской
+                    return ['creator', 'administrator', 'member'].includes(status);
+                } else {
+                    console.warn('Ошибка API:', data);
+                    
+                    // Если бот не админ - показываем предупреждение
+                    if (data.error_code === 400) {
+                        showMessage('⚠️ Бот не является администратором канала! Проверка невозможна.', 'warning');
+                    }
+                    return false;
+                }
+            } catch (error) {
+                console.error('Ошибка запроса:', error);
+                return false;
+            }
+        }
+        
+        // Показать сообщение
+        function showMessage(text, type) {
+            const messageArea = document.getElementById('messageArea');
+            messageArea.innerHTML = `<div class="${type}-message">${text}</div>`;
+        }
+        
+        // Функции конструктора
+        function addQuestion() {
+            questionCount++;
+            const container = document.getElementById('questionsContainer');
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-block';
+            questionDiv.id = `q_${questionCount}`;
+            
+            let html = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3>Вопрос ${questionCount}</h3>
+            `;
+            
+            if (questionCount > 1) {
+                html += `<button type="button" class="delete-question" onclick="deleteQuestion(${questionCount})">❌ Удалить</button>`;
+            }
+            
+            html += `</div>
+                <div class="form-group">
+                    <label>Текст вопроса</label>
+                    <input type="text" id="q${questionCount}_text" placeholder="Введите вопрос" required>
+                </div>
+                <div class="options-grid">`;
+            
+            for (let i = 1; i <= 4; i++) {
+                html += `
+                    <div class="option-item">
+                        <input type="text" id="q${questionCount}_opt${i}" placeholder="Вариант ${String.fromCharCode(64 + i)}" required>
+                        <input type="radio" name="q${questionCount}_correct" value="${i-1}" ${i === 1 ? 'checked' : ''}>
+                    </div>
+                `;
+            }
+            
+            html += `</div>
+                <small style="color: var(--tg-theme-hint-color, #666);">✓ Выберите правильный ответ (точка слева)</small>
+            `;
+            
+            questionDiv.innerHTML = html;
+            container.appendChild(questionDiv);
+        }
+        
+        function deleteQuestion(id) {
+            const element = document.getElementById(`q_${id}`);
+            if (element) {
+                element.remove();
+                updateQuestionNumbers();
+            }
+        }
+        
+        function updateQuestionNumbers() {
+            const questions = document.querySelectorAll('.question-block');
+            questionCount = questions.length;
+            
+            questions.forEach((q, idx) => {
+                const newNum = idx + 1;
+                q.id = `q_${newNum}`;
+                
+                const h3 = q.querySelector('h3');
+                if (h3) h3.textContent = `Вопрос ${newNum}`;
+                
+                // Обновляем ID полей
+                for (let i = 1; i <= 4; i++) {
+                    const textInput = q.querySelector(`#q\\${newNum}_text`);
+                    if (textInput) textInput.id = `q${newNum}_text`;
+                    
+                    const optInput = q.querySelector(`#q\\${newNum}_opt${i}`);
+                    if (optInput) optInput.id = `q${newNum}_opt${i}`;
+                }
+                
+                // Обновляем name для radio
+                const radios = q.querySelectorAll('input[type="radio"]');
+                radios.forEach(radio => {
+                    radio.name = `q${newNum}_correct`;
+                });
+            });
+        }
+        
+        // Сохранение теста
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (questionCount === 0) {
+                alert('Добавьте хотя бы один вопрос!');
+                return;
+            }
+            
+            // Собираем данные
+            const testData = {
+                title: document.getElementById('testTitle').value,
+                author: document.getElementById('authorName').value,
+                creator: {
+                    id: userId,
+                    name: username
+                },
+                quotes: {
+                    '100': document.getElementById('quote100').value,
+                    '75': document.getElementById('quote75').value,
+                    '50': document.getElementById('quote50').value,
+                    '25': document.getElementById('quote25').value,
+                    '0': document.getElementById('quote0').value
+                },
+                questions: [],
+                created: new Date().toISOString()
+            };
+            
+            // Собираем вопросы
+            for (let i = 1; i <= questionCount; i++) {
+                const questionText = document.getElementById(`q${i}_text`)?.value;
+                if (!questionText) {
+                    alert(`Заполните текст вопроса ${i}`);
+                    return;
+                }
+                
+                const options = [];
+                for (let j = 1; j <= 4; j++) {
+                    const opt = document.getElementById(`q${i}_opt${j}`)?.value;
+                    if (!opt) {
+                        alert(`Заполните вариант ${j} в вопросе ${i}`);
+                        return;
+                    }
+                    options.push(opt);
+                }
+                
+                const correctRadio = document.querySelector(`input[name="q${i}_correct"]:checked`);
+                const correctIndex = correctRadio ? parseInt(correctRadio.value) : 0;
+                
+                testData.questions.push({
+                    text: questionText,
+                    options: options,
+                    correct: correctIndex
+                });
+            }
+            
+            // Сохраняем в localStorage
+            const testId = 'test_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem(testId, JSON.stringify(testData));
+            
+            // Создаем ссылку
+            const baseUrl = window.location.href.split('?')[0].split('#')[0];
+            const testUrl = baseUrl + '?test=' + testId;
+            
+            document.getElementById('testUrl').value = testUrl;
+            document.getElementById('resultLink').style.display = 'block';
+            
+            // Вибрация
+            tg.HapticFeedback.notification('success');
+        });
+        
+        function copyUrl() {
+            const urlInput = document.getElementById('testUrl');
+            urlInput.select();
+            document.execCommand('copy');
+            
+            tg.showPopup({
+                title: 'Успех',
+                message: 'Ссылка скопирована!',
+                buttons: [{ type: 'ok' }]
+            });
+        }
+        
+        // Проверяем, открыт ли тест
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            const testId = params.get('test');
+            
+            if (testId) {
+                loadTest(testId);
+            } else {
+                // Если нет testId, показываем блок проверки
+                document.getElementById('checkBlock').style.display = 'block';
+            }
+        };
+        
+        function loadTest(testId) {
+            const testData = localStorage.getItem(testId);
+            
+            if (!testData) {
+                document.body.innerHTML = `
+                    <div style="text-align: center; padding: 50px;">
+                        <h2>❌ Тест не найден</h2>
+                        <p>Возможно, он был удален или ссылка неверная</p>
+                        <button onclick="location.href=location.pathname" style="margin-top:20px;padding:10px 20px;">На главную</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Здесь можно добавить страницу прохождения теста
+            // Для простоты покажем сообщение
+            document.body.innerHTML = `
+                <div style="text-align: center; padding: 50px;">
+                    <h2>📝 Тест найден!</h2>
+                    <p>Страница прохождения теста будет доступна позже</p>
+                    <button onclick="location.href=location.pathname" style="margin-top:20px;padding:10px 20px;">Назад</button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
