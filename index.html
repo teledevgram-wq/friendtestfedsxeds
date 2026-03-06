@@ -6,7 +6,6 @@
     <title>Friend Test Bot</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* СТИЛИ - вставь сюда все стили из предыдущего ответа */
         * {
             margin: 0;
             padding: 0;
@@ -452,7 +451,7 @@
             
             <div class="result-link" id="resultLink">
                 <strong>✅ Тест создан!</strong>
-                <p>Отправь ссылку друзьям:</p>
+                <p>Отправь ссылку друзьям (откроется прямо в Telegram):</p>
                 <input type="text" id="testUrl" readonly>
                 <button class="copy-btn" onclick="copyUrl()">📋 Скопировать ссылку</button>
             </div>
@@ -473,9 +472,12 @@
         // Токен бота
         const BOT_TOKEN = '8682719938:AAEFdbbXez_0f7M87QvzcTf5gm7Mybl6Eho';
         
-        // JSONBin.io credentials - ВСТАВЬ СВОИ ЗНАЧЕНИЯ!
-        const JSONBIN_API_KEY = '$2a$10$F0cAPsC5hR7IdQ2aLV4CDeUmRXIX7F1lk1FYcF/WO4zLjpS4yCu3a'; // Вставь свой API ключ
-        const JSONBIN_BIN_ID = '69ab380043b1c97be9bb3caa';   // Вставь свой Bin ID
+        // JSONBin.io credentials - ТВОИ ДАННЫЕ
+        const JSONBIN_API_KEY = '$2a$10$F0cAPsC5hR7IdQ2aLV4CDeUmRXIX7F1lk1FYcF/WO4zLjpS4yCu3a';
+        const JSONBIN_BIN_ID = '69ab380043b1c97be9bb3caa';
+        
+        // Telegram bot username - ВСТАВЬ ИМЯ СВОЕГО БОТА (без @)
+        const BOT_USERNAME = 'FriendTest54Bot'; // ЗАМЕНИ НА СВОЕ!
         
         // Каналы для проверки
         const CHANNELS = [
@@ -488,6 +490,21 @@
         
         // Показываем информацию о пользователе
         document.getElementById('userInfo').innerHTML = `👤 ${username} (ID: ${userId || 'не определен'})`;
+        
+        // Функция сокращения ссылок
+        async function shortenUrl(longUrl) {
+            try {
+                // Используем бесплатный сервис v.gd
+                const response = await fetch(`https://v.gd/create.php?format=simple&url=${encodeURIComponent(longUrl)}`);
+                if (response.ok) {
+                    const shortUrl = await response.text();
+                    return shortUrl.trim();
+                }
+            } catch (e) {
+                console.log('Ошибка сокращения ссылки:', e);
+            }
+            return longUrl; // если не получилось - вернем оригинал
+        }
         
         // Проверка подписки
         async function checkSubscriptions() {
@@ -656,12 +673,9 @@
                 // Генерируем ID теста
                 const testId = 'test_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
                 
-                // 🔥 СОХРАНЯЕМ В JSONBIN.IO
-                // Сначала получаем текущие данные
+                // СОХРАНЯЕМ В JSONBIN.IO
                 const getResponse = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-                    headers: {
-                        'X-Master-Key': JSONBIN_API_KEY
-                    }
+                    headers: { 'X-Master-Key': JSONBIN_API_KEY }
                 });
                 
                 let allTests = {};
@@ -670,10 +684,8 @@
                     allTests = data.record || {};
                 }
                 
-                // Добавляем новый тест
                 allTests[testId] = testData;
                 
-                // Сохраняем обратно
                 const saveResponse = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
                     method: 'PUT',
                     headers: {
@@ -687,13 +699,13 @@
                     throw new Error('Ошибка сохранения');
                 }
                 
-                // Создаем ссылку
-                const baseUrl = window.location.href.split('?')[0];
-                const testUrl = baseUrl + '?test=' + testId;
+                // СОЗДАЕМ КОРОТКУЮ ССЫЛКУ ДЛЯ TELEGRAM
+                const longUrl = `https://t.me/${BOT_USERNAME}/?startapp=${testId}`;
+                const testUrl = await shortenUrl(longUrl);
                 
                 document.getElementById('testUrl').value = testUrl;
                 document.getElementById('resultLink').style.display = 'block';
-                showMessage('✅ Тест сохранен в облаке!', 'success');
+                showMessage('✅ Тест сохранен! Ссылка откроется прямо в Telegram', 'success');
                 tg.HapticFeedback.notification('success');
                 
             } catch (error) {
@@ -710,13 +722,24 @@
             const urlInput = document.getElementById('testUrl');
             urlInput.select();
             document.execCommand('copy');
-            tg.showPopup({ title: 'Успех', message: 'Ссылка скопирована!' });
+            
+            tg.showPopup({ 
+                title: '✅ Скопировано!', 
+                message: 'Ссылка скопирована. Отправь её друзьям - она откроется прямо в Telegram!',
+                buttons: [{ type: 'ok' }]
+            });
         }
         
         // Загрузка теста при открытии ссылки
         window.onload = function() {
             const params = new URLSearchParams(window.location.search);
-            const testId = params.get('test');
+            let testId = params.get('test');
+            
+            // Проверяем startapp параметр (из Telegram Mini App)
+            const startapp = params.get('tgWebAppStartParam') || params.get('startapp');
+            if (startapp && startapp.startsWith('test_')) {
+                testId = startapp;
+            }
             
             if (testId) {
                 loadTest(testId);
@@ -731,9 +754,7 @@
                 showMessage('⏳ Загрузка теста...', 'warning');
                 
                 const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-                    headers: {
-                        'X-Master-Key': JSONBIN_API_KEY
-                    }
+                    headers: { 'X-Master-Key': JSONBIN_API_KEY }
                 });
                 
                 if (!response.ok) throw new Error('Ошибка загрузки');
