@@ -1,0 +1,20 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Разрешаем доступ к API
+    <Files "api.php">
+        Order Allow,Deny
+        Allow from all
+    </Files>
+    
+    # Запрещаем прямой доступ к SQLite
+    <Files "*.sqlite">
+        Order Deny,Allow
+        Deny from all
+    </Files>
+</IfModule>
+
+# Включаем сжатие
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
