@@ -700,7 +700,8 @@
                 }
                 
                 // СОЗДАЕМ КОРОТКУЮ ССЫЛКУ ДЛЯ TELEGRAM
-               const testUrl = `https://t.me/${BOT_USERNAME}/app?startapp=${testId}`;
+               // ПРАВИЛЬНОЕ СОЗДАНИЕ ССЫЛКИ
+                const testUrl = `https://t.me/${BOT_USERNAME}?startapp=${testId}`;
                 
                 document.getElementById('testUrl').value = testUrl;
                 document.getElementById('resultLink').style.display = 'block';
@@ -913,6 +914,7 @@ window.onload = function() {
     </script>
 </body>
 </html>
+
 
 
 
