@@ -1,1037 +1,180 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Friend Test Bot</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
-        
-        body {
-            background: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            min-height: 100vh;
-            padding: 16px;
-        }
-        
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            width: 100%;
-        }
-        
-        /* Блок проверки подписки */
-        .check-block {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            border-radius: 20px;
-            padding: 24px 20px;
-            text-align: center;
-            margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        
-        .check-block h2 {
-            margin-bottom: 24px;
-            color: var(--tg-theme-text-color, #000);
-            font-size: clamp(18px, 5vw, 22px);
-            line-height: 1.3;
-        }
-        
-        .channel-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin: 24px 0;
-        }
-        
-        .channel-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 16px;
-            background: var(--tg-theme-bg-color, #fff);
-            border-radius: 14px;
-            border: 2px solid var(--tg-theme-button-color, #40a7e3);
-            gap: 10px;
-        }
-        
-        .channel-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-            min-width: 0; /* Для правильного обрезания текста */
-        }
-        
-        .channel-emoji {
-            font-size: 24px;
-            flex-shrink: 0;
-        }
-        
-        .channel-name {
-            font-weight: 600;
-            color: var(--tg-theme-text-color, #000);
-            font-size: 15px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .subscribe-btn {
-            background: var(--tg-theme-button-color, #40a7e3);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
-            padding: 10px 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-            flex-shrink: 0;
-            transition: opacity 0.2s;
-            box-shadow: 0 2px 6px rgba(64, 167, 227, 0.3);
-        }
-        
-        .subscribe-btn:active {
-            opacity: 0.8;
-            transform: scale(0.97);
-        }
-        
-        .check-btn {
-            background: var(--tg-theme-button-color, #40a7e3);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
-            padding: 16px 20px;
-            border-radius: 14px;
-            cursor: pointer;
-            font-size: 17px;
-            font-weight: 600;
-            width: 100%;
-            margin-top: 20px;
-            transition: opacity 0.2s;
-            box-shadow: 0 4px 10px rgba(64, 167, 227, 0.3);
-        }
-        
-        .check-btn:active:not(:disabled) {
-            opacity: 0.8;
-            transform: scale(0.98);
-        }
-        
-        .check-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        
-        /* Блок конструктора тестов */
-        .constructor-block {
-            display: none;
-            animation: fadeIn 0.3s;
-        }
-        
-        .test-block {
-            animation: fadeIn 0.3s;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .constructor-block h1 {
-            text-align: center;
-            margin-bottom: 24px;
-            color: var(--tg-theme-text-color, #000);
-            font-size: clamp(20px, 6vw, 24px);
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--tg-theme-hint-color, #666);
-            font-weight: 500;
-            font-size: 15px;
-        }
-        
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid var(--tg-theme-hint-color, #e0e0e0);
-            border-radius: 12px;
-            font-size: 16px;
-            background: var(--tg-theme-bg-color, #fff);
-            color: var(--tg-theme-text-color, #000);
-            transition: border-color 0.2s;
-            -webkit-appearance: none;
-        }
-        
-        input[type="text"]:focus, textarea:focus {
-            outline: none;
-            border-color: var(--tg-theme-button-color, #40a7e3);
-        }
-        
-        .question-block {
-            background: var(--tg-theme-secondary-bg-color, #f9f9f9);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 2px solid var(--tg-theme-hint-color, #e0e0e0);
-        }
-        
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            margin: 15px 0;
-        }
-        
-        .option-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--tg-theme-bg-color, #fff);
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--tg-theme-hint-color, #ddd);
-        }
-        
-        .option-item input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            font-size: 14px;
-            min-width: 0;
-        }
-        
-        .option-item input[type="radio"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-        
-        .add-question {
-            background: var(--tg-theme-button-color, #4CAF50);
-            color: var(--tg-theme-button-text-color, white);
-            border: none;
-            padding: 14px 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            margin: 20px 0;
-            width: 100%;
-            transition: opacity 0.2s;
-        }
-        
-        .add-question:active {
-            opacity: 0.8;
-        }
-        
-        .delete-question {
-            background: #f44336;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: opacity 0.2s;
-        }
-        
-        .delete-question:active {
-            opacity: 0.8;
-        }
-        
-        .create-test {
-            background: var(--tg-theme-button-color, #667eea);
-            color: var(--tg-theme-button-text-color, white);
-            border: none;
-            padding: 16px 20px;
-            border-radius: 14px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: 600;
-            width: 100%;
-            margin-top: 20px;
-            transition: opacity 0.2s;
-        }
-        
-        .create-test:active {
-            opacity: 0.8;
-        }
-        
-        .result-link {
-            margin-top: 24px;
-            padding: 20px;
-            background: var(--tg-theme-secondary-bg-color, #e8f5e8);
-            border-radius: 16px;
-            display: none;
-            animation: fadeIn 0.3s;
-        }
-        
-        .result-link input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #4CAF50;
-            border-radius: 10px;
-            margin: 15px 0;
-            background: var(--tg-theme-bg-color, #fff);
-            font-size: 14px;
-        }
-        
-        .copy-btn {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 14px 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: 600;
-            font-size: 16px;
-            transition: opacity 0.2s;
-        }
-        
-        .copy-btn:active {
-            opacity: 0.8;
-        }
-        
-        /* Сообщения */
-        .success-message {
-            color: #4CAF50;
-            margin: 15px 0;
-            font-weight: 600;
-            padding: 14px;
-            background: rgba(76, 175, 80, 0.1);
-            border-radius: 12px;
-            font-size: 15px;
-        }
-        
-        .error-message {
-            color: #f44336;
-            margin: 15px 0;
-            font-weight: 600;
-            padding: 14px;
-            background: rgba(244, 67, 54, 0.1);
-            border-radius: 12px;
-            font-size: 15px;
-        }
-        
-        .warning-message {
-            color: #ff9800;
-            margin: 15px 0;
-            font-weight: 600;
-            padding: 14px;
-            background: rgba(255, 152, 0, 0.1);
-            border-radius: 12px;
-            font-size: 15px;
-        }
-        
-        /* Инфо о пользователе */
-        .user-info {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            padding: 12px 16px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            text-align: center;
-            font-weight: 500;
-            font-size: 14px;
-            word-break: break-word;
-        }
-        
-        /* Загрузка */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Страница теста */
-        .test-page {
-            padding: 16px 0;
-        }
-        
-        .test-header {
-            text-align: center;
-            margin-bottom: 24px;
-            padding: 20px;
-            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
-            border-radius: 16px;
-        }
-        
-        .test-header h1 {
-            font-size: clamp(20px, 6vw, 24px);
-            margin-bottom: 8px;
-        }
-        
-        .test-header .author {
-            color: var(--tg-theme-hint-color, #666);
-            font-size: 15px;
-        }
-        
-        .test-question {
-            background: var(--tg-theme-secondary-bg-color, #f9f9f9);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-        
-        .test-question h3 {
-            margin-bottom: 16px;
-            font-size: 17px;
-        }
-        
-        .test-option {
-            display: flex;
-            align-items: center;
-            padding: 14px;
-            margin-bottom: 8px;
-            background: var(--tg-theme-bg-color, #fff);
-            border: 2px solid var(--tg-theme-hint-color, #e0e0e0);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .test-option.selected {
-            border-color: var(--tg-theme-button-color, #40a7e3);
-            background: rgba(64, 167, 227, 0.05);
-        }
-        
-        .test-option input[type="radio"] {
-            margin-right: 12px;
-            width: 20px;
-            height: 20px;
-            flex-shrink: 0;
-        }
-        
-        .test-option label {
-            flex: 1;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 0;
-        }
-        
-        .test-submit {
-            background: var(--tg-theme-button-color, #40a7e3);
-            color: var(--tg-theme-button-text-color, #fff);
-            border: none;
-            padding: 18px 20px;
-            border-radius: 14px;
-            font-size: 18px;
-            font-weight: 600;
-            width: 100%;
-            margin: 20px 0;
-            cursor: pointer;
-        }
-        
-        .test-submit:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .test-result {
-            text-align: center;
-            padding: 24px;
-            background: linear-gradient(135deg, var(--tg-theme-secondary-bg-color), var(--tg-theme-bg-color));
-            border-radius: 20px;
-            margin-top: 20px;
-        }
-        
-        .percentage {
-            font-size: 48px;
-            font-weight: bold;
-            color: var(--tg-theme-button-color, #40a7e3);
-            margin: 20px 0;
-        }
-        
-        .quote {
-            font-size: clamp(18px, 5vw, 22px);
-            margin: 20px 0;
-            padding: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-        }
-        
-        .back-btn {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            color: var(--tg-theme-text-color, #000);
-            border: none;
-            padding: 14px 20px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            width: 100%;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-        
-        h2 {
-            color: var(--tg-theme-text-color, #000);
-            margin: 24px 0 16px;
-            font-size: clamp(18px, 5vw, 20px);
-        }
-        
-        small {
-            color: var(--tg-theme-hint-color, #666);
-            display: block;
-            margin-top: 8px;
-            font-size: 13px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container" id="app">
-        <!-- Информация о пользователе -->
-        <div id="userInfo" class="user-info">Загрузка...</div>
-        
-        <!-- Блок проверки подписки -->
-        <div id="checkBlock" class="check-block">
-            <h2>📝 Для создания теста подпишись на каналы:</h2>
-            
-            <div class="channel-list">
-                <div class="channel-item">
-                    <div class="channel-info">
-                        <span class="channel-emoji">📢</span>
-                        <span class="channel-name">@literoom_clorum</span>
-                    </div>
-                    <a href="https://t.me/literoom_clorum" target="_blank" class="subscribe-btn">Перейти</a>
-                </div>
-                
-                <div class="channel-item">
-                    <div class="channel-info">
-                        <span class="channel-emoji">⭐</span>
-                        <span class="channel-name">@bravostarstyr</span>
-                    </div>
-                    <a href="https://t.me/bravostarstyr" target="_blank" class="subscribe-btn">Перейти</a>
-                </div>
-            </div>
-            
-            <div id="messageArea"></div>
-            
-            <button id="checkSubsBtn" class="check-btn" onclick="checkSubscriptions()">Проверить подписку</button>
-        </div>
-        
-        <!-- Блок конструктора тестов -->
-        <div id="constructorBlock" class="constructor-block">
-            <h1>📝 Создай тест на друга</h1>
-            
-            <form id="testForm">
-                <div class="form-group">
-                    <label>Название теста</label>
-                    <input type="text" id="testTitle" placeholder="Например: Насколько хорошо ты меня знаешь?" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Твое имя</label>
-                    <input type="text" id="authorName" placeholder="Твое имя" required>
-                </div>
-                
-                <h2>Вопросы</h2>
-                <div id="questionsContainer"></div>
-                
-                <button type="button" class="add-question" onclick="addQuestion()">➕ Добавить вопрос</button>
-                
-                <h2>Цитаты для результатов</h2>
-                
-                <div class="form-group">
-                    <label>100% (Лучшие друзья)</label>
-                    <textarea id="quote100" rows="2">🎉 Вы лучшие и не разлучимые друзья на веки!</textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label>75-99%</label>
-                    <textarea id="quote75" rows="2">👍 Вы отличные друзья!</textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label>50-74%</label>
-                    <textarea id="quote50" rows="2">👌 Хорошие друзья, можно и лучше</textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label>25-49%</label>
-                    <textarea id="quote25" rows="2">🤔 Стоит узнать друг друга получше</textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label>0-24%</label>
-                    <textarea id="quote0" rows="2">😅 Похоже, вы не очень близки</textarea>
-                </div>
-                
-                <button type="submit" class="create-test">🔗 Создать тест</button>
-            </form>
-            
-            <div class="result-link" id="resultLink">
-                <strong>✅ Тест создан!</strong>
-                <p>Отправь ссылку друзьям:</p>
-                <input type="text" id="testUrl" readonly>
-                <button class="copy-btn" onclick="copyUrl()">📋 Скопировать ссылку</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Инициализация Telegram Web App
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
-        
-        // Данные пользователя
-        const user = tg.initDataUnsafe?.user;
-        const userId = user?.id;
-        const username = user?.username || user?.first_name || 'Пользователь';
-        
-        // Токен бота - ВСТАВЬ СВОЙ!!!
-        const BOT_TOKEN = '8682719938:AAEFdbbXez_0f7M87QvzcTf5gm7Mybl6Eho'; // ЗАМЕНИ НА СВОЙ!
-        
-        // Каналы для проверки
-        const CHANNELS = [
-            { name: 'literoom_clorum', display: '@literoom_clorum' },
-            { name: 'bravostarstyr', display: '@bravostarstyr' }
-        ];
-        
-        let questionCount = 0;
-        let currentTestId = null;
-        
-        // Показываем информацию о пользователе
-        if (userId) {
-            document.getElementById('userInfo').innerHTML = `👤 ${username} (ID: ${userId})`;
-        } else {
-            document.getElementById('userInfo').innerHTML = '⚠️ Открой бота через Telegram!';
-        }
-        
-        // Проверка подписки
-        async function checkSubscriptions() {
-            const messageArea = document.getElementById('messageArea');
-            const checkBtn = document.getElementById('checkSubsBtn');
-            
-            if (!userId) {
-                showMessage('❌ Ошибка: не удалось определить пользователя. Открой бота через Telegram!', 'error');
+// Сохранение теста (вместо localStorage)
+document.getElementById('testForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (questionCount === 0) {
+        alert('Добавьте хотя бы один вопрос!');
+        return;
+    }
+    
+    // Показываем загрузку
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = '⏳ Сохранение...';
+    submitBtn.disabled = true;
+    
+    try {
+        // Собираем данные
+        const testData = {
+            title: document.getElementById('testTitle').value,
+            author: document.getElementById('authorName').value,
+            creator: {
+                id: userId,
+                name: username
+            },
+            quotes: {
+                '100': document.getElementById('quote100').value,
+                '75': document.getElementById('quote75').value,
+                '50': document.getElementById('quote50').value,
+                '25': document.getElementById('quote25').value,
+                '0': document.getElementById('quote0').value
+            },
+            questions: []
+        };
+        
+        // Собираем вопросы
+        for (let i = 1; i <= questionCount; i++) {
+            const questionText = document.getElementById(`q${i}_text`)?.value;
+            if (!questionText) {
+                alert(`Заполните текст вопроса ${i}`);
                 return;
             }
             
-            checkBtn.disabled = true;
-            checkBtn.innerHTML = '<span class="loading"></span> Проверка...';
-            
-            try {
-                let allSubscribed = true;
-                let notSubscribed = [];
-                
-                // Проверяем каждый канал
-                for (const channel of CHANNELS) {
-                    showMessage(`⏳ Проверка ${channel.display}...`, 'warning');
-                    
-                    const isSubscribed = await checkChannel(channel.name);
-                    
-                    if (!isSubscribed) {
-                        allSubscribed = false;
-                        notSubscribed.push(channel.display);
-                    }
+            const options = [];
+            for (let j = 1; j <= 4; j++) {
+                const opt = document.getElementById(`q${i}_opt${j}`)?.value;
+                if (!opt) {
+                    alert(`Заполните вариант ${j} в вопросе ${i}`);
+                    return;
                 }
-                
-                if (allSubscribed) {
-                    showMessage('✅ Подписка подтверждена! Доступ открыт.', 'success');
-                    
-                    // Показываем конструктор
-                    setTimeout(() => {
-                        document.getElementById('checkBlock').style.display = 'none';
-                        document.getElementById('constructorBlock').style.display = 'block';
-                        
-                        // Добавляем первый вопрос
-                        if (questionCount === 0) addQuestion();
-                        
-                        // Отправляем событие в Telegram
-                        tg.HapticFeedback.notification('success');
-                    }, 1500);
-                } else {
-                    showMessage(`❌ Не подписан на: ${notSubscribed.join(', ')}`, 'error');
-                    tg.HapticFeedback.notification('error');
-                }
-                
-            } catch (error) {
-                console.error('Ошибка:', error);
-                showMessage('❌ Ошибка при проверке. Попробуй позже.', 'error');
-            } finally {
-                checkBtn.disabled = false;
-                checkBtn.innerHTML = '🔍 Проверить подписку';
-            }
-        }
-        
-        // Проверка одного канала
-        async function checkChannel(channelName) {
-            try {
-                const url = `https://api.telegram.org/bot${BOT_TOKEN}/getChatMember`;
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: `@${channelName}`,
-                        user_id: userId
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.ok) {
-                    const status = data.result.status;
-                    return ['creator', 'administrator', 'member'].includes(status);
-                } else {
-                    console.warn('Ошибка API:', data);
-                    
-                    if (data.error_code === 400) {
-                        showMessage('⚠️ Бот не является администратором канала! Проверка невозможна.', 'warning');
-                    }
-                    return false;
-                }
-            } catch (error) {
-                console.error('Ошибка запроса:', error);
-                return false;
-            }
-        }
-        
-        // Показать сообщение
-        function showMessage(text, type) {
-            const messageArea = document.getElementById('messageArea');
-            messageArea.innerHTML = `<div class="${type}-message">${text}</div>`;
-        }
-        
-        // Функции конструктора
-        function addQuestion() {
-            questionCount++;
-            const container = document.getElementById('questionsContainer');
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-block';
-            questionDiv.id = `q_${questionCount}`;
-            
-            let html = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="margin:0;">Вопрос ${questionCount}</h3>
-            `;
-            
-            if (questionCount > 1) {
-                html += `<button type="button" class="delete-question" onclick="deleteQuestion(${questionCount})">❌ Удалить</button>`;
+                options.push(opt);
             }
             
-            html += `</div>
-                <div class="form-group">
-                    <label>Текст вопроса</label>
-                    <input type="text" id="q${questionCount}_text" placeholder="Введите вопрос" required>
-                </div>
-                <div class="options-grid">`;
+            const correctRadio = document.querySelector(`input[name="q${i}_correct"]:checked`);
+            const correctIndex = correctRadio ? parseInt(correctRadio.value) : 0;
             
-            for (let i = 1; i <= 4; i++) {
-                html += `
-                    <div class="option-item">
-                        <input type="text" id="q${questionCount}_opt${i}" placeholder="Вариант ${String.fromCharCode(64 + i)}" required>
-                        <input type="radio" name="q${questionCount}_correct" value="${i-1}" ${i === 1 ? 'checked' : ''}>
-                    </div>
-                `;
-            }
-            
-            html += `</div>
-                <small>✓ Выберите правильный ответ</small>
-            `;
-            
-            questionDiv.innerHTML = html;
-            container.appendChild(questionDiv);
-        }
-        
-        function deleteQuestion(id) {
-            const element = document.getElementById(`q_${id}`);
-            if (element) {
-                element.remove();
-                updateQuestionNumbers();
-            }
-        }
-        
-        function updateQuestionNumbers() {
-            const questions = document.querySelectorAll('.question-block');
-            questionCount = questions.length;
-            
-            questions.forEach((q, idx) => {
-                const newNum = idx + 1;
-                q.id = `q_${newNum}`;
-                
-                const h3 = q.querySelector('h3');
-                if (h3) h3.textContent = `Вопрос ${newNum}`;
+            testData.questions.push({
+                text: questionText,
+                options: options,
+                correct: correctIndex
             });
         }
         
-        // Сохранение теста
-        document.getElementById('testForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (questionCount === 0) {
-                alert('Добавьте хотя бы один вопрос!');
-                return;
-            }
-            
-            // Собираем данные
-            const testData = {
-                title: document.getElementById('testTitle').value,
-                author: document.getElementById('authorName').value,
-                creator: {
-                    id: userId,
-                    name: username
-                },
-                quotes: {
-                    '100': document.getElementById('quote100').value,
-                    '75': document.getElementById('quote75').value,
-                    '50': document.getElementById('quote50').value,
-                    '25': document.getElementById('quote25').value,
-                    '0': document.getElementById('quote0').value
-                },
-                questions: [],
-                created: Date.now()
-            };
-            
-            // Собираем вопросы
-            for (let i = 1; i <= questionCount; i++) {
-                const questionText = document.getElementById(`q${i}_text`)?.value;
-                if (!questionText) {
-                    alert(`Заполните текст вопроса ${i}`);
-                    return;
-                }
-                
-                const options = [];
-                for (let j = 1; j <= 4; j++) {
-                    const opt = document.getElementById(`q${i}_opt${j}`)?.value;
-                    if (!opt) {
-                        alert(`Заполните вариант ${j} в вопросе ${i}`);
-                        return;
-                    }
-                    options.push(opt);
-                }
-                
-                const correctRadio = document.querySelector(`input[name="q${i}_correct"]:checked`);
-                const correctIndex = correctRadio ? parseInt(correctRadio.value) : 0;
-                
-                testData.questions.push({
-                    text: questionText,
-                    options: options,
-                    correct: correctIndex
-                });
-            }
-            
-            // Сохраняем в localStorage с ключом, который можно передать
-            const testId = 'test_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            
-            // Сохраняем тест
-            const tests = JSON.parse(localStorage.getItem('all_tests') || '{}');
-            tests[testId] = testData;
-            localStorage.setItem('all_tests', JSON.stringify(tests));
-            
-            // Создаем ссылку
-            const baseUrl = window.location.href.split('?')[0].split('#')[0];
-            const testUrl = baseUrl + '?test=' + testId;
+        // Отправляем на сервер
+        const response = await fetch('api.php?action=save_test', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(testData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            const testUrl = result.data.url;
             
             document.getElementById('testUrl').value = testUrl;
             document.getElementById('resultLink').style.display = 'block';
             
             // Вибрация
             tg.HapticFeedback.notification('success');
+            
+            // Показываем сообщение
+            showMessage('✅ Тест успешно сохранен в базе данных!', 'success');
+        } else {
+            throw new Error(result.message || 'Ошибка сохранения');
+        }
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showMessage('❌ Ошибка при сохранении: ' + error.message, 'error');
+        tg.HapticFeedback.notification('error');
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+// Загрузка теста из БД
+async function loadTest(testId) {
+    try {
+        const response = await fetch(`api.php?action=get_test&test_id=${testId}`);
+        const result = await response.json();
+        
+        if (result.status === 'success' && result.data) {
+            showTestPage(result.data);
+        } else {
+            showTestNotFound();
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки теста:', error);
+        showTestNotFound();
+    }
+}
+
+// Сохранение результата
+async function saveResult(testId, score, percentage) {
+    try {
+        const resultData = {
+            test_id: testId,
+            user_id: userId,
+            user_name: username,
+            score: score,
+            percentage: percentage
+        };
+        
+        await fetch('api.php?action=save_result', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(resultData)
         });
         
-        function copyUrl() {
-            const urlInput = document.getElementById('testUrl');
-            urlInput.select();
-            document.execCommand('copy');
-            
-            tg.showPopup({
-                title: 'Успех',
-                message: 'Ссылка скопирована!',
-                buttons: [{ type: 'ok' }]
-            });
-        }
+        // Не ждем ответа, просто сохраняем в фоне
         
-        // Загрузка теста
-        window.onload = function() {
-            const params = new URLSearchParams(window.location.search);
-            const testId = params.get('test');
-            
-            if (testId) {
-                loadTest(testId);
-            } else {
-                document.getElementById('checkBlock').style.display = 'block';
-            }
-        };
-        
-        function loadTest(testId) {
-            // Загружаем тест из общего хранилища
-            const tests = JSON.parse(localStorage.getItem('all_tests') || '{}');
-            const testData = tests[testId];
-            
-            if (!testData) {
-                showTestNotFound();
-                return;
-            }
-            
-            currentTestId = testId;
-            showTestPage(testData);
-        }
-        
-        function showTestNotFound() {
-            document.body.innerHTML = `
-                <div class="container">
-                    <div style="text-align: center; padding: 40px 20px;">
-                        <div style="font-size: 64px; margin-bottom: 20px;">😢</div>
-                        <h2>Тест не найден</h2>
-                        <p style="color: var(--tg-theme-hint-color, #666); margin: 20px 0;">
-                            Возможно, ссылка недействительна или тест был удален
-                        </p>
-                        <button onclick="location.href=location.pathname" 
-                                style="background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); 
-                                       border: none; padding: 16px 30px; border-radius: 14px; 
-                                       font-size: 16px; font-weight: 600; cursor: pointer; width: 100%;">
-                            🔙 На главную
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-        
-        function showTestPage(testData) {
-            const app = document.getElementById('app');
-            let userAnswers = new Array(testData.questions.length).fill(null);
-            
-            let html = `
-                <div class="test-page">
-                    <div class="test-header">
-                        <h1>${testData.title}</h1>
-                        <div class="author">Тест от ${testData.author}</div>
-                    </div>
-                    
-                    <div id="testQuestions">
-            `;
-            
-            testData.questions.forEach((q, index) => {
-                html += `
-                    <div class="test-question" id="q_${index}">
-                        <h3>${index + 1}. ${q.text}</h3>
-                        <div class="options">
-                `;
-                
-                q.options.forEach((opt, optIndex) => {
-                    html += `
-                        <div class="test-option" onclick="selectAnswer(${index}, ${optIndex})">
-                            <input type="radio" name="q${index}" value="${optIndex}" id="q${index}opt${optIndex}">
-                            <label for="q${index}opt${optIndex}">${opt}</label>
-                        </div>
-                    `;
-                });
-                
-                html += `</div></div>`;
-            });
-            
-            html += `
-                    </div>
-                    
-                    <button class="test-submit" onclick="calculateResult()" id="submitBtn" disabled>🔍 Узнать результат</button>
-                    
-                    <div id="testResult" class="test-result" style="display: none;"></div>
-                    
-                    <button class="back-btn" onclick="location.href=location.pathname">← Назад</button>
-                </div>
-            `;
-            
-            app.innerHTML = html;
-            
-            // Сохраняем данные для функций
-            window.testData = testData;
-            window.userAnswers = userAnswers;
-        }
-        
-        // Функции для прохождения теста
-        window.selectAnswer = function(questionIndex, optionIndex) {
-            const radio = document.getElementById(`q${questionIndex}opt${optionIndex}`);
-            if (radio) radio.checked = true;
-            
-            // Визуальное выделение
-            const options = document.querySelectorAll(`#q_${questionIndex} .test-option`);
-            options.forEach(opt => opt.classList.remove('selected'));
-            event.currentTarget.classList.add('selected');
-            
-            // Сохраняем ответ
-            window.userAnswers[questionIndex] = optionIndex;
-            
-            // Проверяем, все ли отвечены
-            const allAnswered = window.userAnswers.every(a => a !== null);
-            document.getElementById('submitBtn').disabled = !allAnswered;
-        };
-        
-        window.calculateResult = function() {
-            let correct = 0;
-            
-            window.testData.questions.forEach((q, index) => {
-                if (window.userAnswers[index] === q.correct) {
-                    correct++;
-                }
-            });
-            
-            const percentage = Math.round((correct / window.testData.questions.length) * 100);
-            
-            // Определяем цитату
-            let quote;
-            if (percentage === 100) quote = window.testData.quotes['100'];
-            else if (percentage >= 75) quote = window.testData.quotes['75'];
-            else if (percentage >= 50) quote = window.testData.quotes['50'];
-            else if (percentage >= 25) quote = window.testData.quotes['25'];
-            else quote = window.testData.quotes['0'];
-            
-            const resultDiv = document.getElementById('testResult');
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = `
-                <h2>Результат</h2>
-                <div class="percentage">${percentage}%</div>
-                <div class="quote">${quote}</div>
-                <button class="test-submit" onclick="shareResult(${percentage}, '${quote}')">📤 Поделиться</button>
-            `;
-            
-            // Прокрутка к результату
-            resultDiv.scrollIntoView({ behavior: 'smooth' });
-            tg.HapticFeedback.notification('success');
-        };
-        
-        window.shareResult = function(percentage, quote) {
-            const text = `Я прошел(а) тест "${window.testData.title}" и набрал(а) ${percentage}%! ${quote}`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Мой результат',
-                    text: text,
-                    url: window.location.href
-                });
-            } else {
-                prompt('Скопируй результат:', text);
-            }
-        };
-    </script>
-</body>
-</html>
+    } catch (error) {
+        console.error('Ошибка сохранения результата:', error);
+    }
+}
 
+// Обновленная функция calculateResult с сохранением
+window.calculateResult = function() {
+    let correct = 0;
+    
+    window.testData.questions.forEach((q, index) => {
+        if (window.userAnswers[index] === q.correct) {
+            correct++;
+        }
+    });
+    
+    const percentage = Math.round((correct / window.testData.questions.length) * 100);
+    
+    // Определяем цитату
+    let quote;
+    if (percentage === 100) quote = window.testData.quotes['100'];
+    else if (percentage >= 75) quote = window.testData.quotes['75'];
+    else if (percentage >= 50) quote = window.testData.quotes['50'];
+    else if (percentage >= 25) quote = window.testData.quotes['25'];
+    else quote = window.testData.quotes['0'];
+    
+    // Сохраняем результат
+    saveResult(currentTestId, correct, percentage);
+    
+    const resultDiv = document.getElementById('testResult');
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `
+        <h2>Результат</h2>
+        <div class="percentage">${percentage}%</div>
+        <div class="quote">${quote}</div>
+        <div style="margin: 10px 0; color: var(--tg-theme-hint-color);">
+            ✅ Правильных ответов: ${correct} из ${window.testData.questions.length}
+        </div>
+        <button class="test-submit" onclick="shareResult(${percentage}, '${quote}')">📤 Поделиться</button>
+    `;
+    
+    // Прокрутка к результату
+    resultDiv.scrollIntoView({ behavior: 'smooth' });
+    tg.HapticFeedback.notification('success');
+};
