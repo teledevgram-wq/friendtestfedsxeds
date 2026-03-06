@@ -729,23 +729,29 @@
             });
         }
         
-        // Загрузка теста при открытии ссылки
-        window.onload = function() {
-            const params = new URLSearchParams(window.location.search);
-            let testId = params.get('test');
-            
-            // Проверяем startapp параметр (из Telegram Mini App)
-            const startapp = params.get('tgWebAppStartParam') || params.get('startapp');
-            if (startapp && startapp.startsWith('test_')) {
-                testId = startapp;
-            }
-            
-            if (testId) {
-                loadTest(testId);
-            } else {
-                document.getElementById('checkBlock').style.display = 'block';
-            }
-        };
+// Загрузка теста при открытии ссылки - ИСПРАВЛЕНО!
+window.onload = function() {
+    // Получаем данные из Telegram Web App
+    const startParam = tg.initDataUnsafe?.start_param;
+    console.log('Start param:', startParam); // Для отладки
+    
+    let testId = null;
+    
+    // Сначала проверяем start_param из Telegram
+    if (startParam && startParam.startsWith('test_')) {
+        testId = startParam;
+    } else {
+        // Если нет, проверяем URL параметры
+        const params = new URLSearchParams(window.location.search);
+        testId = params.get('test');
+    }
+    
+    if (testId) {
+        loadTest(testId);
+    } else {
+        document.getElementById('checkBlock').style.display = 'block';
+    }
+};
         
         // ЗАГРУЗКА ТЕСТА ИЗ JSONBIN.IO
         async function loadTest(testId) {
@@ -907,5 +913,6 @@
     </script>
 </body>
 </html>
+
 
 
