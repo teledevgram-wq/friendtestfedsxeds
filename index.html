@@ -700,8 +700,7 @@
                 }
                 
                 // СОЗДАЕМ КОРОТКУЮ ССЫЛКУ ДЛЯ TELEGRAM
-                const longUrl = `https://t.me/${BOT_USERNAME}/?startapp=${testId}`;
-                const testUrl = await shortenUrl(longUrl);
+               const testUrl = `https://t.me/${BOT_USERNAME}/?startapp=${testId}`;
                 
                 document.getElementById('testUrl').value = testUrl;
                 document.getElementById('resultLink').style.display = 'block';
@@ -908,3 +907,4 @@
     </script>
 </body>
 </html>
+
