@@ -71,6 +71,22 @@
             word-break: break-all;
         }
         
+        .proxy-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        
+        .proxy-details span {
+            background: #334155;
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+        
         .btn {
             background: #60a5fa;
             color: white;
@@ -114,6 +130,25 @@
             text-align: center;
             margin-top: 10px;
         }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #334155;
+            border-top-color: #60a5fa;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -124,31 +159,35 @@
         tg.expand();
         
         // ========== КОНФИГУРАЦИЯ ==========
-        const BOT_TOKEN = '8682719938:AAEFdbbXez_0f7M87QvzcTf5gm7Mybl6Eho';
-        const BOT_USERNAME = 'FriendTest54Bot';
+        const BOT_TOKEN = '8607602990:AAHJIhzWDMBd0CnxOwVtZLOyMYl6joEE55c';
+        const BOT_USERNAME = 'BestFreeProxyBot';
         const ADMIN_ID = 123456789; // Твой Telegram ID
         
         // JSONBin для хранения данных пользователей
         const BIN_ID = '69ab380043b1c97be9bb3caa';
         const API_KEY = '$2a$10$F0cAPsC5hR7IdQ2aLV4CDeUmRXIX7F1lk1FYcF/WO4zLjpS4yCu3a';
         
-        // ========== ПРОКСИ ИЗ ФАЙЛОВ ==========
-        async function loadProxiesFromFiles() {
-            // Список файлов с прокси
-            const proxyFiles = [
-                'proxy/proxy1.json',
-                'proxy/proxy2.json',
-                'proxy/proxy3.json'
-            ];
-            
+        // Список файлов с прокси
+        const PROXY_FILES = [
+            'proxy/proxy1.json',
+            'proxy/proxy2.json'
+        ];
+        
+        // ========== УНИВЕРСАЛЬНАЯ ЗАГРУЗКА ПРОКСИ ==========
+        async function loadAllProxies() {
             let allProxies = [];
             
-            for (const file of proxyFiles) {
+            for (const file of PROXY_FILES) {
                 try {
                     const response = await fetch(file);
                     if (response.ok) {
-                        const proxies = await response.json();
-                        allProxies = allProxies.concat(proxies);
+                        const data = await response.json();
+                        
+                        // Преобразуем в единый формат
+                        const converted = convertToUnifiedFormat(data);
+                        allProxies = allProxies.concat(converted);
+                        
+                        console.log(`Загружено из ${file}: ${converted.length} прокси`);
                     }
                 } catch (e) {
                     console.log(`Ошибка загрузки ${file}:`, e);
@@ -158,39 +197,101 @@
             return allProxies;
         }
         
+        // ========== ПРЕОБРАЗОВАНИЕ В ЕДИНЫЙ ФОРМАТ ==========
+        function convertToUnifiedFormat(data) {
+            if (!Array.isArray(data)) return [];
+            
+            return data.map(item => {
+                // Формат как в proxy1.json
+                if (item.IP && item.PORT && item.COUNTRY) {
+                    return {
+                        ip: item.IP,
+                        port: item.PORT,
+                        country: item.COUNTRY,
+                        countryShort: item.COUNTRY_SHORT || '',
+                        protocol: item.PROTOCOL || 'http',
+                        type: item.PROTOCOL || 'HTTP',
+                        original: 'proxy1_format'
+                    };
+                }
+                
+                // Формат как в proxy2.json
+                if (item.ip && item.port) {
+                    return {
+                        ip: item.ip,
+                        port: item.port,
+                        country: item.country || 'Unknown',
+                        city: item.city || '',
+                        state: item.state || '',
+                        level: item.level || 'Elite',
+                        type: 'HTTP',
+                        protocol: 'http',
+                        original: 'proxy2_format'
+                    };
+                }
+                
+                // Если формат неизвестный, пробуем извлечь хоть что-то
+                return {
+                    ip: item.ip || item.IP || 'unknown',
+                    port: item.port || item.PORT || 'unknown',
+                    country: item.country || item.COUNTRY || 'Unknown',
+                    type: 'HTTP',
+                    protocol: 'http'
+                };
+            }).filter(p => p.ip !== 'unknown' && p.port !== 'unknown');
+        }
+        
         // ========== ПРОВЕРКА ПРОКСИ ==========
         async function checkProxy(proxy) {
-            // Тут можно добавить реальную проверку через какой-то API
-            // Для демо считаем 70% прокси рабочими
+            // Для демо просто проверяем что прокси не слишком старый
+            // В реальности можно добавить проверку через какой-то API
+            
+            // Имитация проверки
             return new Promise(resolve => {
                 setTimeout(() => {
+                    // 70% прокси рабочие
                     resolve(Math.random() > 0.3);
-                }, 500);
+                }, 300);
             });
         }
         
-        // ========== ПОЛУЧЕНИЕ РАБОЧЕГО ПРОКСИ ==========
-        async function getWorkingProxy() {
-            const allProxies = await loadProxiesFromFiles();
+        // ========== ПОЛУЧЕНИЕ ЛУЧШЕГО РАБОЧЕГО ПРОКСИ ==========
+        async function getBestWorkingProxy() {
+            const allProxies = await loadAllProxies();
             
             if (allProxies.length === 0) {
                 return null;
             }
             
+            console.log(`Всего прокси: ${allProxies.length}`);
+            
             // Перемешиваем
             const shuffled = allProxies.sort(() => 0.5 - Math.random());
             
-            // Проверяем первые 10
-            const toCheck = shuffled.slice(0, 10);
+            // Проверяем первые 15 (чтобы быстрее)
+            const toCheck = shuffled.slice(0, 15);
+            let workingProxies = [];
             
             for (const proxy of toCheck) {
                 const isWorking = await checkProxy(proxy);
                 if (isWorking) {
-                    return proxy;
+                    workingProxies.push(proxy);
                 }
             }
             
-            return null;
+            if (workingProxies.length === 0) {
+                return null;
+            }
+            
+            // Сортируем: прокси из proxy2.json (Elite) выше приоритетом
+            workingProxies.sort((a, b) => {
+                const aScore = a.level === 'Elite' || a.level === 'Elite+' ? 2 : 1;
+                const bScore = b.level === 'Elite' || b.level === 'Elite+' ? 2 : 1;
+                return bScore - aScore;
+            });
+            
+            // Берем лучший
+            return workingProxies[0];
         }
         
         // ========== РАБОТА С JSONBIN ==========
@@ -221,7 +322,7 @@
             }
         }
         
-        // ========== ОТПРАВКА СООБЩЕНИЙ В ТЕЛЕГРАМ ==========
+        // ========== ОТПРАВКА В TELEGRAM ==========
         async function sendTelegramMessage(chatId, text) {
             try {
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -241,10 +342,10 @@
         // ========== ГЛАВНАЯ СТРАНИЦА ==========
         async function showMain() {
             const userId = tg.initDataUnsafe?.user?.id;
-            const username = tg.initDataUnsafe?.user?.username || 'user';
+            const username = tg.initDataUnsafe?.user?.username || 'Пользователь';
             
             if (!userId) {
-                document.getElementById('app').innerHTML = '<div class="card">❌ Открой через Telegram</div>';
+                document.getElementById('app').innerHTML = '<div class="card">❌ Открой бота через Telegram</div>';
                 return;
             }
             
@@ -255,15 +356,22 @@
             const fiveDays = 5 * 24 * 60 * 60 * 1000;
             const timeLeft = (userData.lastGet + fiveDays) - now;
             
+            // Загружаем прокси для статистики
+            const allProxies = await loadAllProxies();
+            
             let html = `
                 <div class="card">
                     <h1>🌐 Proxy Bot</h1>
-                    <p style="color:#94a3b8;">Привет, @${username}!</p>
+                    <p style="color:#94a3b8;">Привет, ${username}!</p>
                     
                     <div class="stats">
                         <div class="stat-item">
+                            <div class="stat-value">${allProxies.length}</div>
+                            <div>Всего прокси</div>
+                        </div>
+                        <div class="stat-item">
                             <div class="stat-value">${userData.count || 0}</div>
-                            <div>Получено</div>
+                            <div>Вы получили</div>
                         </div>
                     </div>
             `;
@@ -297,22 +405,25 @@
         // ========== ПОЛУЧЕНИЕ ПРОКСИ ==========
         window.getProxy = async function() {
             const userId = tg.initDataUnsafe?.user?.id;
+            const username = tg.initDataUnsafe?.user?.username || 'Пользователь';
             
             document.getElementById('app').innerHTML = `
-                <div class="card" style="text-align:center; padding:40px;">
-                    🔍 Ищем рабочий прокси...<br>
-                    <small style="color:#94a3b8;">Проверяем прокси из файлов</small>
+                <div class="card loading">
+                    <div class="loading-spinner"></div>
+                    <h3>Ищем лучший прокси...</h3>
+                    <p style="color:#94a3b8;">Проверяем прокси из файлов</p>
+                    <p style="color:#94a3b8; font-size:12px; margin-top:20px;">proxy1.json • proxy2.json</p>
                 </div>
             `;
             
-            const proxy = await getWorkingProxy();
+            const proxy = await getBestWorkingProxy();
             
             if (!proxy) {
                 document.getElementById('app').innerHTML = `
                     <div class="card" style="text-align:center;">
-                        <h2 style="color:#f87171;">❌ Нет рабочих прокси</h2>
-                        <p>Попробуйте позже</p>
-                        <button class="btn" onclick="showMain()">← Назад</button>
+                        <h2 style="color:#f87171; margin:20px 0;">❌ Нет рабочих прокси</h2>
+                        <p style="color:#94a3b8; margin-bottom:20px;">Попробуйте позже или добавьте новые прокси</p>
+                        <button class="btn" onclick="showMain()">← На главную</button>
                     </div>
                 `;
                 return;
@@ -329,21 +440,38 @@
             // Отправляем уведомление админу
             await sendTelegramMessage(
                 ADMIN_ID,
-                `🎁 @${tg.initDataUnsafe?.user?.username} получил прокси\n` +
-                `IP: ${proxy.ip}:${proxy.port}\n` +
-                `Страна: ${proxy.country}`
+                `🎁 <b>Новый прокси выдан</b>\n` +
+                `👤 Пользователь: @${username}\n` +
+                `🌐 Прокси: ${proxy.ip}:${proxy.port}\n` +
+                `📍 Страна: ${proxy.country} ${proxy.city ? '• ' + proxy.city : ''}\n` +
+                `📦 Формат: ${proxy.original || 'unknown'}`
             );
+            
+            // Формируем детали для отображения
+            let detailsHtml = '';
+            if (proxy.city || proxy.state) {
+                detailsHtml += `<span>📍 ${proxy.city || ''} ${proxy.state || ''}</span>`;
+            }
+            if (proxy.countryShort) {
+                detailsHtml += `<span>🏳️ ${proxy.countryShort}</span>`;
+            }
+            if (proxy.level) {
+                detailsHtml += `<span>⭐ ${proxy.level}</span>`;
+            }
+            if (proxy.protocol) {
+                detailsHtml += `<span>🔌 ${proxy.protocol.toUpperCase()}</span>`;
+            }
             
             // Показываем прокси
             document.getElementById('app').innerHTML = `
                 <div class="card">
-                    <h1>✅ Прокси найден!</h1>
+                    <h1 style="text-align:center;">✅ Прокси найден!</h1>
                     
                     <div class="proxy-box">
                         <div class="proxy-ip">${proxy.ip}:${proxy.port}</div>
-                        <div style="display:flex; justify-content:center; gap:15px; margin-top:15px; color:#94a3b8;">
-                            <span>${proxy.country || 'Unknown'}</span>
-                            <span>${proxy.type || 'HTTP'}</span>
+                        <div class="proxy-details">
+                            <span>🌍 ${proxy.country}</span>
+                            ${detailsHtml}
                         </div>
                     </div>
                     
@@ -363,7 +491,8 @@
             navigator.clipboard?.writeText(proxy);
             tg.showPopup({ 
                 title: '✅ Скопировано', 
-                message: 'Прокси скопирован в буфер обмена'
+                message: 'Прокси скопирован в буфер обмена',
+                buttons: [{ type: 'ok' }]
             });
         };
         
