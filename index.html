@@ -112,20 +112,25 @@
         let questions = [];
         let currentTestId = null;
         
-        // Запуск
-        async function init() {
-            console.log('Init started');
-            console.log('Telegram data:', tg.initDataUnsafe);
-            
-            const startParam = tg.initDataUnsafe?.start_param;
-            console.log('Start param:', startParam);
-            
-            if (startParam && startParam.startsWith('test_')) {
-                await loadTest(startParam);
-            } else {
-                showMainScreen();
-            }
-        }
+async function init() {
+    console.log('Start param:', tg.initDataUnsafe?.start_param);
+    
+    // Всегда показываем главный экран
+    showMain();
+    
+    // Если есть start_param, сохраняем его и покажем кнопку
+    const startParam = tg.initDataUnsafe?.start_param;
+    if (startParam && startParam.startsWith('test_')) {
+        // Добавим кнопку на главном экране
+        setTimeout(() => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerHTML = '🎯 Перейти к полученному тесту';
+            btn.onclick = () => loadTest(startParam);
+            document.querySelector('.card').appendChild(btn);
+        }, 100);
+    }
+}
         
         // Главный экран
         function showMainScreen() {
@@ -405,3 +410,4 @@
     </script>
 </body>
 </html>
+
