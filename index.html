@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тесты для друзей</title>
+    <title>Proxy Bot</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -12,402 +12,363 @@
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+        
         body {
-            background: var(--tg-theme-bg-color, #f5f5f5);
-            padding: 20px;
+            background: var(--tg-theme-bg-color, #0b1120);
+            color: var(--tg-theme-text-color, #fff);
             min-height: 100vh;
+            padding: 20px;
         }
+        
         .container {
-            max-width: 600px;
+            max-width: 500px;
             margin: 0 auto;
         }
+        
         .card {
-            background: var(--tg-theme-secondary-bg-color, white);
-            border-radius: 20px;
-            padding: 20px;
+            background: var(--tg-theme-secondary-bg-color, #1e293b);
+            border-radius: 24px;
+            padding: 24px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #334155;
         }
-        h1, h2 {
-            color: var(--tg-theme-text-color, #333);
-            margin-bottom: 15px;
-        }
-        .channel-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: var(--tg-theme-bg-color, #fff);
-            border: 2px solid var(--tg-theme-button-color, #40a7e3);
-            border-radius: 12px;
+        
+        h1 {
+            font-size: 32px;
             margin-bottom: 10px;
+            color: #60a5fa;
         }
+        
+        .timer {
+            background: #0f172a;
+            border-radius: 40px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px dashed #60a5fa;
+        }
+        
+        .timer-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #60a5fa;
+            font-family: monospace;
+        }
+        
+        .proxy-box {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #4ade80;
+        }
+        
+        .proxy-ip {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4ade80;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
         .btn {
-            background: var(--tg-theme-button-color, #40a7e3);
-            color: var(--tg-theme-button-text-color, white);
+            background: #60a5fa;
+            color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 16px;
+            padding: 18px;
+            border-radius: 16px;
+            font-size: 18px;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
-            margin: 5px 0;
+            margin: 10px 0;
+            transition: all 0.2s;
         }
-        .btn-small {
-            background: var(--tg-theme-button-color, #40a7e3);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
+        
+        .btn:active {
+            transform: scale(0.97);
+            background: #3b82f6;
+        }
+        
+        .btn:disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            color: #94a3b8;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+        
+        .warning {
+            color: #fbbf24;
             font-size: 14px;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            margin: 5px 0 15px;
-            font-size: 16px;
-        }
-        .question {
-            background: var(--tg-theme-bg-color, #f0f0f0);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        .options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .result-link {
-            display: none;
-            margin-top: 20px;
-            padding: 15px;
-            background: #e8f5e8;
-            border-radius: 10px;
-        }
-        .hidden {
-            display: none;
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="app">
-        <!-- Будет заполняться JavaScript -->
-    </div>
+    <div class="container" id="app"></div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
         
-        // Данные
+        // ========== КОНФИГУРАЦИЯ ==========
+        const BOT_TOKEN = '8682719938:AAEFdbbXez_0f7M87QvzcTf5gm7Mybl6Eho';
         const BOT_USERNAME = 'FriendTest54Bot';
-        const JSONBIN_API_KEY = '$2a$10$F0cAPsC5hR7IdQ2aLV4CDeUmRXIX7F1lk1FYcF/WO4zLjpS4yCu3a';
-        const JSONBIN_BIN_ID = '69ab380043b1c97be9bb3caa';
+        const ADMIN_ID = 123456789; // Твой Telegram ID
         
-        let currentScreen = 'main';
-        let questions = [];
-        let currentTestId = null;
+        // JSONBin для хранения данных пользователей
+        const BIN_ID = '69ab380043b1c97be9bb3caa';
+        const API_KEY = '$2a$10$F0cAPsC5hR7IdQ2aLV4CDeUmRXIX7F1lk1FYcF/WO4zLjpS4yCu3a';
         
-async function init() {
-    console.log('Start param:', tg.initDataUnsafe?.start_param);
-    
-    // Всегда показываем главный экран
-    showMain();
-    
-    // Если есть start_param, сохраняем его и покажем кнопку
-    const startParam = tg.initDataUnsafe?.start_param;
-    if (startParam && startParam.startsWith('test_')) {
-        // Добавим кнопку на главном экране
-        setTimeout(() => {
-            const btn = document.createElement('button');
-            btn.className = 'btn';
-            btn.innerHTML = '🎯 Перейти к полученному тесту';
-            btn.onclick = () => loadTest(startParam);
-            document.querySelector('.card').appendChild(btn);
-        }, 100);
-    }
-}
-        
-        // Главный экран
-        function showMainScreen() {
-            const html = `
-                <div class="card">
-                    <h1>📝 Тесты для друзей</h1>
-                    <p>Создавай тесты и проверяй, как хорошо тебя знают</p>
-                    
-                    <h2>Подпишись на каналы:</h2>
-                    <div class="channel-item">
-                        <span>📢 @literoom_clorum</span>
-                        <a href="https://t.me/literoom_clorum" target="_blank" class="btn-small">Перейти</a>
-                    </div>
-                    <div class="channel-item">
-                        <span>⭐ @bravostarstyr</span>
-                        <a href="https://t.me/bravostarstyr" target="_blank" class="btn-small">Перейти</a>
-                    </div>
-                    
-                    <button class="btn" onclick="checkSubs()">✅ Я подписался</button>
-                    <div id="message"></div>
-                </div>
-            `;
-            document.getElementById('app').innerHTML = html;
-        }
-        
-        // Проверка подписки (упрощенно)
-        function checkSubs() {
-            document.getElementById('message').innerHTML = '<p style="color:green">✅ Доступ открыт!</p>';
-            setTimeout(showCreator, 1000);
-        }
-        
-        // Создание теста
-        function showCreator() {
-            const html = `
-                <div class="card">
-                    <h1>📝 Создать тест</h1>
-                    
-                    <label>Название теста:</label>
-                    <input type="text" id="testTitle" placeholder="Например: Как хорошо ты меня знаешь?">
-                    
-                    <label>Твое имя:</label>
-                    <input type="text" id="authorName" placeholder="Твое имя">
-                    
-                    <h2>Вопросы</h2>
-                    <div id="questionsList"></div>
-                    
-                    <button class="btn" onclick="addQuestion()">➕ Добавить вопрос</button>
-                    <button class="btn" onclick="saveTest()">💾 Сохранить тест</button>
-                    
-                    <div id="result" class="result-link"></div>
-                    <button class="btn" onclick="showMainScreen()">← Назад</button>
-                </div>
-            `;
-            document.getElementById('app').innerHTML = html;
-            questions = [];
-            addQuestion();
-        }
-        
-        // Добавить вопрос
-        function addQuestion() {
-            const qId = questions.length;
-            questions.push({ text: '', options: ['', '', '', ''], correct: 0 });
+        // ========== ПРОКСИ ИЗ ФАЙЛОВ ==========
+        async function loadProxiesFromFiles() {
+            // Список файлов с прокси
+            const proxyFiles = [
+                'proxy/proxy1.json',
+                'proxy/proxy2.json',
+                'proxy/proxy3.json'
+            ];
             
-            const html = `
-                <div class="question" id="q_${qId}">
-                    <h3>Вопрос ${qId + 1}</h3>
-                    <input type="text" placeholder="Текст вопроса" onchange="updateQuestion(${qId}, 'text', this.value)">
-                    
-                    <div class="options">
-                        <div>
-                            <input type="text" placeholder="Вариант А" onchange="updateOption(${qId}, 0, this.value)">
-                            <input type="radio" name="q${qId}" value="0" onchange="setCorrect(${qId}, 0)" checked>
-                        </div>
-                        <div>
-                            <input type="text" placeholder="Вариант Б" onchange="updateOption(${qId}, 1, this.value)">
-                            <input type="radio" name="q${qId}" value="1" onchange="setCorrect(${qId}, 1)">
-                        </div>
-                        <div>
-                            <input type="text" placeholder="Вариант В" onchange="updateOption(${qId}, 2, this.value)">
-                            <input type="radio" name="q${qId}" value="2" onchange="setCorrect(${qId}, 2)">
-                        </div>
-                        <div>
-                            <input type="text" placeholder="Вариант Г" onchange="updateOption(${qId}, 3, this.value)">
-                            <input type="radio" name="q${qId}" value="3" onchange="setCorrect(${qId}, 3)">
-                        </div>
-                    </div>
-                    ${qId > 0 ? '<button class="btn-small" onclick="removeQuestion('+qId+')">❌ Удалить</button>' : ''}
-                </div>
-            `;
+            let allProxies = [];
             
-            document.getElementById('questionsList').insertAdjacentHTML('beforeend', html);
-        }
-        
-        // Обновить вопрос
-        function updateQuestion(id, field, value) {
-            questions[id].text = value;
-        }
-        
-        function updateOption(id, optIndex, value) {
-            questions[id].options[optIndex] = value;
-        }
-        
-        function setCorrect(id, optIndex) {
-            questions[id].correct = optIndex;
-        }
-        
-        function removeQuestion(id) {
-            questions.splice(id, 1);
-            showCreator();
-        }
-        
-        // Сохранить тест
-        async function saveTest() {
-            const title = document.getElementById('testTitle').value;
-            const author = document.getElementById('authorName').value;
-            
-            if (!title || !author) {
-                alert('Заполни название и имя!');
-                return;
+            for (const file of proxyFiles) {
+                try {
+                    const response = await fetch(file);
+                    if (response.ok) {
+                        const proxies = await response.json();
+                        allProxies = allProxies.concat(proxies);
+                    }
+                } catch (e) {
+                    console.log(`Ошибка загрузки ${file}:`, e);
+                }
             }
             
-            const testData = {
-                title,
-                author,
-                questions,
-                created: Date.now(),
-                plays: 0
-            };
+            return allProxies;
+        }
+        
+        // ========== ПРОВЕРКА ПРОКСИ ==========
+        async function checkProxy(proxy) {
+            // Тут можно добавить реальную проверку через какой-то API
+            // Для демо считаем 70% прокси рабочими
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(Math.random() > 0.3);
+                }, 500);
+            });
+        }
+        
+        // ========== ПОЛУЧЕНИЕ РАБОЧЕГО ПРОКСИ ==========
+        async function getWorkingProxy() {
+            const allProxies = await loadProxiesFromFiles();
             
-            const testId = 'test_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            if (allProxies.length === 0) {
+                return null;
+            }
             
-            try {
-                // Сохраняем в JSONBin
-                const getRes = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-                    headers: { 'X-Master-Key': JSONBIN_API_KEY }
-                });
-                
-                let allTests = {};
-                if (getRes.ok) {
-                    const data = await getRes.json();
-                    allTests = data.record || {};
+            // Перемешиваем
+            const shuffled = allProxies.sort(() => 0.5 - Math.random());
+            
+            // Проверяем первые 10
+            const toCheck = shuffled.slice(0, 10);
+            
+            for (const proxy of toCheck) {
+                const isWorking = await checkProxy(proxy);
+                if (isWorking) {
+                    return proxy;
                 }
-                
-                allTests[testId] = testData;
-                
-                await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+            }
+            
+            return null;
+        }
+        
+        // ========== РАБОТА С JSONBIN ==========
+        async function loadUsers() {
+            try {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { 'X-Master-Key': API_KEY }
+                });
+                const data = await res.json();
+                return data.record?.users || {};
+            } catch {
+                return {};
+            }
+        }
+        
+        async function saveUsers(users) {
+            try {
+                await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_API_KEY
+                        'X-Master-Key': API_KEY
                     },
-                    body: JSON.stringify(allTests)
+                    body: JSON.stringify({ users })
                 });
-                
-                const testUrl = `https://t.me/${BOT_USERNAME}?startapp=${testId}`;
-                
-                document.getElementById('result').innerHTML = `
-                    <p>✅ Тест сохранен!</p>
-                    <input type="text" value="${testUrl}" readonly>
-                    <button class="btn-small" onclick="copyUrl('${testUrl}')">📋 Копировать</button>
-                `;
-                document.getElementById('result').style.display = 'block';
-                
             } catch (e) {
-                alert('Ошибка: ' + e.message);
+                console.log('Ошибка сохранения:', e);
             }
         }
         
-        // Копировать
-        function copyUrl(url) {
-            navigator.clipboard?.writeText(url);
-            alert('Ссылка скопирована!');
-        }
-        
-        // Загрузить тест
-        async function loadTest(testId) {
+        // ========== ОТПРАВКА СООБЩЕНИЙ В ТЕЛЕГРАМ ==========
+        async function sendTelegramMessage(chatId, text) {
             try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-                    headers: { 'X-Master-Key': JSONBIN_API_KEY }
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: text,
+                        parse_mode: 'HTML'
+                    })
                 });
-                
-                const data = await res.json();
-                const allTests = data.record || {};
-                const test = allTests[testId];
-                
-                if (!test) {
-                    showError('Тест не найден');
-                    return;
-                }
-                
-                currentTestId = testId;
-                showTest(test);
-                
             } catch (e) {
-                showError('Ошибка загрузки');
+                console.log('Ошибка отправки:', e);
             }
         }
         
-        // Показать тест
-        function showTest(test) {
+        // ========== ГЛАВНАЯ СТРАНИЦА ==========
+        async function showMain() {
+            const userId = tg.initDataUnsafe?.user?.id;
+            const username = tg.initDataUnsafe?.user?.username || 'user';
+            
+            if (!userId) {
+                document.getElementById('app').innerHTML = '<div class="card">❌ Открой через Telegram</div>';
+                return;
+            }
+            
+            const users = await loadUsers();
+            const userData = users[userId] || { lastGet: 0, count: 0 };
+            
+            const now = Date.now();
+            const fiveDays = 5 * 24 * 60 * 60 * 1000;
+            const timeLeft = (userData.lastGet + fiveDays) - now;
+            
             let html = `
                 <div class="card">
-                    <h1>${test.title}</h1>
-                    <p>Тест от ${test.author}</p>
+                    <h1>🌐 Proxy Bot</h1>
+                    <p style="color:#94a3b8;">Привет, @${username}!</p>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${userData.count || 0}</div>
+                            <div>Получено</div>
+                        </div>
+                    </div>
             `;
             
-            test.questions.forEach((q, i) => {
+            if (timeLeft <= 0 || !userData.lastGet) {
                 html += `
-                    <div class="question">
-                        <h3>${i+1}. ${q.text}</h3>
-                        ${q.options.map((opt, j) => `
-                            <div style="margin: 5px 0;">
-                                <input type="radio" name="q${i}" value="${j}" id="q${i}o${j}" onchange="answer(${i}, ${j})">
-                                <label for="q${i}o${j}">${opt}</label>
-                            </div>
-                        `).join('')}
+                    <div class="timer">
+                        <div class="timer-value">✅</div>
+                        <div>Можно взять прокси</div>
+                    </div>
+                    <button class="btn" onclick="getProxy()">🎁 Получить прокси</button>
+                `;
+            } else {
+                const days = Math.floor(timeLeft / (24*60*60*1000));
+                const hours = Math.floor((timeLeft % (24*60*60*1000)) / (60*60*1000));
+                
+                html += `
+                    <div class="timer">
+                        <div class="timer-value">${days}д ${hours}ч</div>
+                        <div>До следующего</div>
+                    </div>
+                    <button class="btn" disabled>⏳ Подождите</button>
+                    <div class="warning">Новый прокси через ${days} дня</div>
+                `;
+            }
+            
+            html += `</div>`;
+            document.getElementById('app').innerHTML = html;
+        }
+        
+        // ========== ПОЛУЧЕНИЕ ПРОКСИ ==========
+        window.getProxy = async function() {
+            const userId = tg.initDataUnsafe?.user?.id;
+            
+            document.getElementById('app').innerHTML = `
+                <div class="card" style="text-align:center; padding:40px;">
+                    🔍 Ищем рабочий прокси...<br>
+                    <small style="color:#94a3b8;">Проверяем прокси из файлов</small>
+                </div>
+            `;
+            
+            const proxy = await getWorkingProxy();
+            
+            if (!proxy) {
+                document.getElementById('app').innerHTML = `
+                    <div class="card" style="text-align:center;">
+                        <h2 style="color:#f87171;">❌ Нет рабочих прокси</h2>
+                        <p>Попробуйте позже</p>
+                        <button class="btn" onclick="showMain()">← Назад</button>
                     </div>
                 `;
-            });
+                return;
+            }
             
-            html += `
-                <button class="btn" onclick="checkAnswers()" id="submitBtn">🔍 Узнать результат</button>
-                <div id="testResult"></div>
-                <button class="btn" onclick="init()">← На главную</button>
-                </div>
-            `;
+            // Обновляем статистику
+            const users = await loadUsers();
+            users[userId] = {
+                lastGet: Date.now(),
+                count: (users[userId]?.count || 0) + 1
+            };
+            await saveUsers(users);
             
-            document.getElementById('app').innerHTML = html;
+            // Отправляем уведомление админу
+            await sendTelegramMessage(
+                ADMIN_ID,
+                `🎁 @${tg.initDataUnsafe?.user?.username} получил прокси\n` +
+                `IP: ${proxy.ip}:${proxy.port}\n` +
+                `Страна: ${proxy.country}`
+            );
             
-            window.currentTest = test;
-            window.userAnswers = new Array(test.questions.length).fill(null);
-        }
-        
-        // Ответить
-        window.answer = function(qIdx, optIdx) {
-            window.userAnswers[qIdx] = optIdx;
-            const allAnswered = window.userAnswers.every(a => a !== null);
-            document.getElementById('submitBtn').disabled = !allAnswered;
-        };
-        
-        // Проверить ответы
-        window.checkAnswers = function() {
-            let correct = 0;
-            window.currentTest.questions.forEach((q, i) => {
-                if (window.userAnswers[i] === q.correct) correct++;
-            });
-            
-            const percent = Math.round((correct / window.currentTest.questions.length) * 100);
-            
-            let message = '';
-            if (percent === 100) message = '🎉 Идеально! Вы лучшие друзья!';
-            else if (percent >= 75) message = '👍 Очень хорошо!';
-            else if (percent >= 50) message = '👌 Неплохо!';
-            else message = '😅 Нужно узнать друг друга лучше';
-            
-            document.getElementById('testResult').innerHTML = `
-                <div style="text-align:center; padding:20px;">
-                    <h2>${percent}%</h2>
-                    <p>${message}</p>
-                    <p>Правильных: ${correct} из ${window.currentTest.questions.length}</p>
-                </div>
-            `;
-        };
-        
-        // Ошибка
-        function showError(msg) {
+            // Показываем прокси
             document.getElementById('app').innerHTML = `
-                <div class="card" style="text-align:center">
-                    <h2>😢 ${msg}</h2>
-                    <button class="btn" onclick="init()">На главную</button>
+                <div class="card">
+                    <h1>✅ Прокси найден!</h1>
+                    
+                    <div class="proxy-box">
+                        <div class="proxy-ip">${proxy.ip}:${proxy.port}</div>
+                        <div style="display:flex; justify-content:center; gap:15px; margin-top:15px; color:#94a3b8;">
+                            <span>${proxy.country || 'Unknown'}</span>
+                            <span>${proxy.type || 'HTTP'}</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" onclick="copyProxy('${proxy.ip}:${proxy.port}')">📋 Копировать</button>
+                    <button class="btn" onclick="showMain()" style="background:#334155;">← На главную</button>
+                    
+                    <div style="text-align:center; margin-top:20px; color:#94a3b8; font-size:14px;">
+                        ✅ Прокси проверен и работает<br>
+                        Следующий можно взять через 5 дней
+                    </div>
                 </div>
             `;
-        }
+        };
         
-        // Старт
-        init();
+        // ========== КОПИРОВАНИЕ ==========
+        window.copyProxy = function(proxy) {
+            navigator.clipboard?.writeText(proxy);
+            tg.showPopup({ 
+                title: '✅ Скопировано', 
+                message: 'Прокси скопирован в буфер обмена'
+            });
+        };
+        
+        // ========== СТАРТ ==========
+        showMain();
     </script>
 </body>
 </html>
-
