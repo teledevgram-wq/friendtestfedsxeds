@@ -14,36 +14,74 @@
         }
         
         body {
-            background: #0a0a0a;
-            color: #ffffff;
+            background: #ffffff;
+            color: #000000;
             min-height: 100vh;
-            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Треугольники как на фото */
+        .triangles-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.15;
+        }
+        
+        .triangle {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 87px solid #000;
+            transform-origin: center;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            cursor: default;
+            opacity: 0.3;
+        }
+        
+        .triangle:hover {
+            opacity: 0.8;
+            transform: scale(1.1) rotate(5deg) !important;
+            border-bottom-color: #333;
         }
         
         .container {
-            max-width: 440px;
+            max-width: 480px;
             margin: 0 auto;
+            padding: 24px 20px;
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         
         /* Header */
         .header {
             margin-bottom: 28px;
             padding-bottom: 16px;
-            border-bottom: 1px solid #222;
+            border-bottom: 2px solid #000;
         }
         
         .header h1 {
-            font-size: 34px;
-            font-weight: 600;
+            font-size: 36px;
+            font-weight: 700;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #000;
             margin-bottom: 4px;
+            text-transform: uppercase;
         }
         
         .header p {
-            color: #888;
+            color: #444;
             font-size: 15px;
             font-weight: 400;
         }
@@ -57,21 +95,16 @@
         }
         
         .stat-card {
-            background: #141414;
-            border-radius: 14px;
+            background: #f5f5f5;
+            border-radius: 12px;
             padding: 18px 16px;
-            border: 1px solid #222;
-            transition: all 0.2s;
-        }
-        
-        .stat-card:hover {
-            border-color: #444;
+            border: 2px solid #000;
         }
         
         .stat-label {
-            color: #888;
+            color: #444;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.3px;
             margin-bottom: 8px;
@@ -79,8 +112,8 @@
         
         .stat-number {
             font-size: 32px;
-            font-weight: 600;
-            color: #fff;
+            font-weight: 700;
+            color: #000;
             line-height: 1;
         }
         
@@ -93,10 +126,10 @@
         
         /* Protocol Selector */
         .section-title {
-            font-size: 16px;
-            font-weight: 500;
-            color: #fff;
-            margin-bottom: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 16px;
             letter-spacing: -0.2px;
         }
         
@@ -108,9 +141,9 @@
         }
         
         .protocol-card {
-            background: #141414;
-            border: 1px solid #222;
-            border-radius: 14px;
+            background: #f5f5f5;
+            border: 2px solid #000;
+            border-radius: 12px;
             padding: 16px 12px;
             text-align: center;
             cursor: pointer;
@@ -118,48 +151,51 @@
         }
         
         .protocol-card:hover {
-            border-color: #666;
-            background: #1a1a1a;
+            background: #000;
+            border-color: #000;
+        }
+        
+        .protocol-card:hover .protocol-name,
+        .protocol-card:hover .protocol-count {
+            color: #fff;
         }
         
         .protocol-card.active {
-            background: #fff;
-            border-color: #fff;
+            background: #000;
+            border-color: #000;
         }
         
-        .protocol-card.active .protocol-name {
-            color: #000;
-            font-weight: 600;
-        }
-        
+        .protocol-card.active .protocol-name,
         .protocol-card.active .protocol-count {
-            color: #333;
+            color: #fff;
         }
         
         .protocol-name {
             font-size: 15px;
-            font-weight: 500;
-            color: #fff;
+            font-weight: 600;
+            color: #000;
             margin-bottom: 4px;
         }
         
         .protocol-count {
             font-size: 13px;
-            color: #888;
+            color: #666;
+            font-weight: 500;
         }
         
         /* Timer */
         .timer-card {
-            background: #141414;
-            border: 1px solid #222;
-            border-radius: 14px;
+            background: #f5f5f5;
+            border: 2px solid #000;
+            border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
         }
         
         .timer-label {
-            color: #888;
+            color: #444;
             font-size: 13px;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.3px;
             margin-bottom: 10px;
@@ -167,8 +203,8 @@
         
         .timer-display {
             font-size: 38px;
-            font-weight: 500;
-            color: #fff;
+            font-weight: 600;
+            color: #000;
             font-family: 'SF Mono', 'Monaco', monospace;
             letter-spacing: 2px;
         }
@@ -176,50 +212,52 @@
         .timer-note {
             color: #666;
             font-size: 13px;
+            font-weight: 500;
             margin-top: 10px;
         }
         
         /* Button */
         .btn {
-            background: #fff;
-            color: #000;
+            background: #000;
+            color: #fff;
             border: none;
             padding: 18px 24px;
-            border-radius: 14px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
             margin: 8px 0;
             transition: all 0.2s;
+            border: 2px solid #000;
         }
         
         .btn:active {
             transform: scale(0.98);
-            background: #eee;
+            background: #333;
         }
         
         .btn:disabled {
-            background: #222;
+            background: #ccc;
             color: #666;
+            border-color: #ccc;
             pointer-events: none;
-            border: 1px solid #333;
         }
         
         .btn-secondary {
             background: transparent;
-            color: #fff;
-            border: 1px solid #333;
+            color: #000;
+            border: 2px solid #000;
         }
         
         .btn-secondary:active {
-            background: #1a1a1a;
+            background: #f0f0f0;
         }
         
         /* Proxy Card */
         .proxy-card {
-            background: #141414;
-            border: 1px solid #222;
+            background: #f5f5f5;
+            border: 2px solid #000;
             border-radius: 16px;
             padding: 24px;
             margin: 20px 0;
@@ -228,7 +266,7 @@
         .proxy-ip {
             font-size: 26px;
             font-weight: 600;
-            color: #fff;
+            color: #000;
             font-family: 'SF Mono', 'Monaco', monospace;
             word-break: break-all;
             margin-bottom: 20px;
@@ -245,32 +283,15 @@
             padding: 6px 14px;
             border-radius: 30px;
             font-size: 13px;
-            font-weight: 500;
-            background: #1e1e1e;
-            color: #fff;
-            border: 1px solid #333;
+            font-weight: 600;
+            background: #fff;
+            color: #000;
+            border: 2px solid #000;
         }
         
         .tag.protocol {
-            background: #fff;
-            color: #000;
-            border: none;
-            font-weight: 600;
-        }
-        
-        .tag.country {
-            background: #222;
-            border-color: #444;
-        }
-        
-        .tag.level {
-            background: #2a2a2a;
-            border-color: #555;
-        }
-        
-        .tag.city {
-            background: #1a1a1a;
-            border-color: #3a3a3a;
+            background: #000;
+            color: #fff;
         }
         
         /* Loading */
@@ -282,8 +303,8 @@
         .spinner {
             width: 40px;
             height: 40px;
-            border: 3px solid #222;
-            border-top-color: #fff;
+            border: 4px solid #f0f0f0;
+            border-top-color: #000;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             margin: 0 auto 24px;
@@ -294,8 +315,9 @@
         }
         
         .loading p {
-            color: #888;
+            color: #444;
             font-size: 15px;
+            font-weight: 500;
         }
         
         /* Error */
@@ -306,13 +328,13 @@
         
         .error h3 {
             font-size: 20px;
-            font-weight: 500;
-            color: #fff;
+            font-weight: 600;
+            color: #000;
             margin-bottom: 8px;
         }
         
         .error p {
-            color: #888;
+            color: #666;
             margin-bottom: 24px;
         }
         
@@ -320,25 +342,126 @@
         .note {
             color: #666;
             font-size: 13px;
+            font-weight: 500;
             text-align: center;
             margin-top: 20px;
         }
         
-        hr {
-            border: none;
-            border-top: 1px solid #222;
-            margin: 20px 0;
+        /* Telegram check */
+        .telegram-warning {
+            background: #fff;
+            border: 2px solid #000;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .telegram-warning h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .telegram-warning p {
+            color: #444;
+            margin-bottom: 20px;
+        }
+        
+        .telegram-link {
+            display: inline-block;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
+    <!-- Треугольники как на фото -->
+    <div class="triangles-bg" id="triangles"></div>
+    
     <div class="container" id="app"></div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+        // ========== СОЗДАНИЕ ТРЕУГОЛЬНИКОВ ==========
+        function createTriangles() {
+            const container = document.getElementById('triangles');
+            const count = 25; // Количество треугольников
+            
+            for (let i = 0; i < count; i++) {
+                const triangle = document.createElement('div');
+                triangle.className = 'triangle';
+                
+                // Случайное положение
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                
+                // Случайный размер
+                const size = 30 + Math.random() * 60;
+                triangle.style.borderLeftWidth = size/2 + 'px';
+                triangle.style.borderRightWidth = size/2 + 'px';
+                triangle.style.borderBottomWidth = size * 0.87 + 'px';
+                triangle.style.borderLeftColor = 'transparent';
+                triangle.style.borderRightColor = 'transparent';
+                triangle.style.borderBottomColor = '#000';
+                
+                // Позиция
+                triangle.style.left = x + '%';
+                triangle.style.top = y + '%';
+                
+                // Случайный поворот
+                const rotation = Math.random() * 360;
+                triangle.style.transform = `rotate(${rotation}deg)`;
+                
+                // Сохраняем данные для мыши
+                triangle.dataset.originalX = x;
+                triangle.dataset.originalY = y;
+                triangle.dataset.originalRotate = rotation;
+                triangle.dataset.size = size;
+                
+                // Добавляем обработчики
+                triangle.addEventListener('mousemove', (e) => {
+                    const rect = triangle.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    
+                    const mouseX = e.clientX;
+                    const mouseY = e.clientY;
+                    
+                    const deltaX = mouseX - centerX;
+                    const deltaY = mouseY - centerY;
+                    
+                    // Прилипание к курсору
+                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                    const maxDistance = 200;
+                    
+                    if (distance < maxDistance) {
+                        const pull = 1 - distance / maxDistance;
+                        const moveX = deltaX * pull * 0.3;
+                        const moveY = deltaY * pull * 0.3;
+                        
+                        triangle.style.transform = `translate(${moveX}px, ${moveY}px) rotate(${parseFloat(triangle.dataset.originalRotate) + pull * 10}deg)`;
+                        triangle.style.opacity = 0.5 + pull * 0.5;
+                    }
+                });
+                
+                triangle.addEventListener('mouseleave', () => {
+                    // Возвращаем на место
+                    triangle.style.transform = `rotate(${triangle.dataset.originalRotate}deg)`;
+                    triangle.style.opacity = '0.3';
+                });
+                
+                container.appendChild(triangle);
+            }
+        }
         
         // ========== КОНФИГ ==========
+        const tg = window.Telegram.WebApp;
+        const isTelegram = tg.initDataUnsafe?.user ? true : false;
+        
         const BOT_TOKEN = '8682719938:AAEFdbbXez_0f7M87QvzcTf5gm7Mybl6Eho';
         const BOT_USERNAME = 'FriendTest54Bot';
         const ADMIN_ID = 123456789;
@@ -353,6 +476,20 @@
         
         let selectedProtocol = 'all';
         let allProxies = [];
+        
+        // ========== ПРОВЕРКА TELEGRAM ==========
+        if (!isTelegram) {
+            document.getElementById('app').innerHTML = `
+                <div class="telegram-warning">
+                    <h2>🔒 Доступ через Telegram</h2>
+                    <p>Этот сервис работает только внутри Telegram</p>
+                    <a href="https://t.me/${BOT_USERNAME}" class="telegram-link">Открыть в Telegram</a>
+                </div>
+            `;
+        } else {
+            tg.expand();
+            init();
+        }
         
         // ========== ЗАГРУЗКА ПРОКСИ ==========
         async function loadAllProxies() {
@@ -494,14 +631,14 @@
         }
         
         // ========== ОСНОВНОЙ ЭКРАН ==========
-        async function showMain() {
+        async function init() {
             const user = tg.initDataUnsafe?.user;
             if (!user?.id) {
                 document.getElementById('app').innerHTML = '<div class="container"><div class="header"><h1>ERROR</h1><p>Open via Telegram</p></div></div>';
                 return;
             }
             
-            // Загружаем прокси один раз
+            // Загружаем прокси
             if (allProxies.length === 0) {
                 allProxies = await loadAllProxies();
             }
@@ -521,8 +658,8 @@
             
             let html = `
                 <div class="header">
-                    <h1>PROXY SELECTOR</h1>
-                    <p>@${user.username || 'user'} • получено ${userData.count || 0}</p>
+                    <h1>PROXY</h1>
+                    <p>@${user.username || 'user'} • ${userData.count || 0} прокси</p>
                 </div>
                 
                 <div class="stats-grid">
@@ -531,12 +668,12 @@
                         <div class="stat-number">${allProxies.length}<small>шт</small></div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Ваш лимит</div>
+                        <div class="stat-label">Лимит</div>
                         <div class="stat-number">1<small>/5д</small></div>
                     </div>
                 </div>
                 
-                <div class="section-title">Выберите протокол</div>
+                <div class="section-title">Протокол</div>
                 
                 <div class="protocol-grid">
                     <div class="protocol-card ${selectedProtocol === 'all' ? 'active' : ''}" onclick="selectProtocol('all')">
@@ -565,11 +702,11 @@
             if (timeLeft <= 0 || !userData.lastGet) {
                 html += `
                     <div class="timer-card">
-                        <div class="timer-label">Можно взять</div>
+                        <div class="timer-label">Доступно</div>
                         <div class="timer-display">✓</div>
-                        <div class="timer-note">1 прокси каждые 5 дней</div>
+                        <div class="timer-note">Можно взять ${selectedProtocol.toUpperCase()}</div>
                     </div>
-                    <button class="btn" onclick="getProxy()">ПОЛУЧИТЬ ${selectedProtocol.toUpperCase()}</button>
+                    <button class="btn" onclick="getProxy()">ПОЛУЧИТЬ</button>
                 `;
             } else {
                 const days = Math.floor(timeLeft / (24*60*60*1000));
@@ -577,11 +714,11 @@
                 
                 html += `
                     <div class="timer-card">
-                        <div class="timer-label">Следующий через</div>
+                        <div class="timer-label">Через</div>
                         <div class="timer-display">${days}д ${hours}ч</div>
-                        <div class="timer-note">Лимит: 1 прокси / 5 дней</div>
+                        <div class="timer-note">Лимит: 1 раз в 5 дней</div>
                     </div>
-                    <button class="btn" disabled>ЛИМИТ ИСЧЕРПАН</button>
+                    <button class="btn" disabled>ЛИМИТ</button>
                 `;
             }
             
@@ -591,7 +728,7 @@
         // ========== ВЫБОР ПРОТОКОЛА ==========
         window.selectProtocol = function(protocol) {
             selectedProtocol = protocol;
-            showMain();
+            init();
         };
         
         // ========== ПОЛУЧИТЬ ПРОКСИ ==========
@@ -601,7 +738,7 @@
             document.getElementById('app').innerHTML = `
                 <div class="loading">
                     <div class="spinner"></div>
-                    <p>Поиск ${selectedProtocol.toUpperCase()} прокси...</p>
+                    <p>Поиск ${selectedProtocol.toUpperCase()}...</p>
                 </div>
             `;
             
@@ -610,9 +747,9 @@
             if (!proxy) {
                 document.getElementById('app').innerHTML = `
                     <div class="error">
-                        <h3>Нет рабочих прокси</h3>
-                        <p>Для протокола ${selectedProtocol.toUpperCase()}</p>
-                        <button class="btn btn-secondary" onclick="showMain()">НАЗАД</button>
+                        <h3>Нет рабочих</h3>
+                        <p>${selectedProtocol.toUpperCase()}</p>
+                        <button class="btn btn-secondary" onclick="init()">НАЗАД</button>
                     </div>
                 `;
                 return;
@@ -629,27 +766,23 @@
             // Уведомление
             await sendToTelegram(
                 ADMIN_ID,
-                `🎁 ${user.username || 'Пользователь'} взял ${proxy.type}\n${proxy.ip}:${proxy.port} • ${proxy.country}`
+                `🎁 ${user.username || 'User'} взял ${proxy.type}\n${proxy.ip}:${proxy.port} • ${proxy.country}`
             );
             
             // Теги
             let tags = `
                 <span class="tag protocol">${proxy.type}</span>
-                <span class="tag country">${proxy.countryShort || proxy.country.slice(0, 2).toUpperCase()}</span>
+                <span class="tag">${proxy.countryShort || proxy.country.slice(0, 2).toUpperCase()}</span>
             `;
             
             if (proxy.level && proxy.level !== 'Standard') {
-                tags += `<span class="tag level">${proxy.level}</span>`;
-            }
-            
-            if (proxy.city) {
-                tags += `<span class="tag city">${proxy.city}</span>`;
+                tags += `<span class="tag">${proxy.level}</span>`;
             }
             
             document.getElementById('app').innerHTML = `
                 <div class="header">
-                    <h1>ПРОКСИ ГОТОВ</h1>
-                    <p>${proxy.type} • проверен</p>
+                    <h1>ГОТОВО</h1>
+                    <p>${proxy.type}</p>
                 </div>
                 
                 <div class="proxy-card">
@@ -660,10 +793,10 @@
                 </div>
                 
                 <button class="btn" onclick="copyProxy('${proxy.ip}:${proxy.port}')">КОПИРОВАТЬ</button>
-                <button class="btn btn-secondary" onclick="showMain()">НОВЫЙ ВЫБОР</button>
+                <button class="btn btn-secondary" onclick="init()">НОВЫЙ</button>
                 
                 <div class="note">
-                    Следующий прокси через 5 дней
+                    Следующий через 5 дней
                 </div>
             `;
         };
@@ -673,13 +806,13 @@
             navigator.clipboard?.writeText(proxy);
             tg.showPopup({ 
                 title: 'Скопировано', 
-                message: 'Прокси в буфере обмена',
+                message: 'Прокси в буфере',
                 buttons: [{ type: 'ok' }]
             });
         };
         
-        // ========== СТАРТ ==========
-        showMain();
+        // ========== СОЗДАЕМ ТРЕУГОЛЬНИКИ ==========
+        createTriangles();
     </script>
 </body>
 </html>
