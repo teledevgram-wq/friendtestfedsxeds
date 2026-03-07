@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROXY | BOT</title>
+    <title>PROXY | SELECTOR</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, 'Helvetica Neue', sans-serif;
         }
         
         body {
-            background: #ffffff;
-            color: #000000;
+            background: #0a0a0a;
+            color: #ffffff;
             min-height: 100vh;
-            padding: 24px;
+            padding: 20px;
         }
         
         .container {
@@ -25,63 +25,51 @@
             margin: 0 auto;
         }
         
-        /* Хедер */
+        /* Header */
         .header {
-            margin-bottom: 32px;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #222;
         }
         
         .header h1 {
-            font-size: 32px;
+            font-size: 34px;
             font-weight: 600;
-            color: #000;
-            letter-spacing: -0.3px;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
         }
         
         .header p {
-            color: #666;
+            color: #888;
             font-size: 15px;
-            margin-top: 4px;
+            font-weight: 400;
         }
         
-        /* Статистика */
-        .stats-row {
-            display: flex;
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-bottom: 32px;
+            margin-bottom: 28px;
         }
         
         .stat-card {
-            background: #f5f5f5;
-            border-radius: 8px;
-            padding: 16px;
-            flex: 1;
+            background: #141414;
+            border-radius: 14px;
+            padding: 18px 16px;
+            border: 1px solid #222;
+            transition: all 0.2s;
+        }
+        
+        .stat-card:hover {
+            border-color: #444;
         }
         
         .stat-label {
-            color: #444;
-            font-size: 13px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 6px;
-        }
-        
-        .stat-number {
-            font-size: 28px;
-            font-weight: 600;
-            color: #000;
-        }
-        
-        /* Таймер */
-        .timer-card {
-            background: #f5f5f5;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 32px;
-        }
-        
-        .timer-label {
-            color: #444;
+            color: #888;
             font-size: 13px;
             font-weight: 500;
             text-transform: uppercase;
@@ -89,11 +77,99 @@
             margin-bottom: 8px;
         }
         
-        .timer-display {
-            font-size: 36px;
+        .stat-number {
+            font-size: 32px;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1;
+        }
+        
+        .stat-number small {
+            font-size: 16px;
+            color: #666;
+            font-weight: 400;
+            margin-left: 4px;
+        }
+        
+        /* Protocol Selector */
+        .section-title {
+            font-size: 16px;
             font-weight: 500;
+            color: #fff;
+            margin-bottom: 14px;
+            letter-spacing: -0.2px;
+        }
+        
+        .protocol-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        
+        .protocol-card {
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 14px;
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .protocol-card:hover {
+            border-color: #666;
+            background: #1a1a1a;
+        }
+        
+        .protocol-card.active {
+            background: #fff;
+            border-color: #fff;
+        }
+        
+        .protocol-card.active .protocol-name {
             color: #000;
-            font-family: monospace;
+            font-weight: 600;
+        }
+        
+        .protocol-card.active .protocol-count {
+            color: #333;
+        }
+        
+        .protocol-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        
+        .protocol-count {
+            font-size: 13px;
+            color: #888;
+        }
+        
+        /* Timer */
+        .timer-card {
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .timer-label {
+            color: #888;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 10px;
+        }
+        
+        .timer-display {
+            font-size: 38px;
+            font-weight: 500;
+            color: #fff;
+            font-family: 'SF Mono', 'Monaco', monospace;
             letter-spacing: 2px;
         }
         
@@ -103,15 +179,15 @@
             margin-top: 10px;
         }
         
-        /* Кнопка */
+        /* Button */
         .btn {
-            background: #000;
-            color: #fff;
+            background: #fff;
+            color: #000;
             border: none;
-            padding: 16px 24px;
-            border-radius: 8px;
+            padding: 18px 24px;
+            border-radius: 14px;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             width: 100%;
             margin: 8px 0;
@@ -119,40 +195,44 @@
         }
         
         .btn:active {
-            background: #333;
             transform: scale(0.98);
+            background: #eee;
         }
         
         .btn:disabled {
-            background: #ccc;
+            background: #222;
             color: #666;
             pointer-events: none;
+            border: 1px solid #333;
         }
         
         .btn-secondary {
-            background: #e5e5e5;
-            color: #000;
+            background: transparent;
+            color: #fff;
+            border: 1px solid #333;
         }
         
         .btn-secondary:active {
-            background: #d5d5d5;
+            background: #1a1a1a;
         }
         
-        /* Прокси карточка */
+        /* Proxy Card */
         .proxy-card {
-            background: #f5f5f5;
-            border-radius: 8px;
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 16px;
             padding: 24px;
-            margin: 24px 0;
+            margin: 20px 0;
         }
         
         .proxy-ip {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 600;
-            color: #000;
-            font-family: monospace;
+            color: #fff;
+            font-family: 'SF Mono', 'Monaco', monospace;
             word-break: break-all;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
         }
         
         .proxy-tags {
@@ -162,81 +242,92 @@
         }
         
         .tag {
-            background: #e5e5e5;
             padding: 6px 14px;
-            border-radius: 6px;
+            border-radius: 30px;
             font-size: 13px;
             font-weight: 500;
-            color: #333;
+            background: #1e1e1e;
+            color: #fff;
+            border: 1px solid #333;
         }
         
         .tag.protocol {
-            background: #000;
-            color: #fff;
+            background: #fff;
+            color: #000;
+            border: none;
+            font-weight: 600;
         }
         
         .tag.country {
-            background: #d4d4d4;
+            background: #222;
+            border-color: #444;
         }
         
         .tag.level {
-            background: #bdbdbd;
+            background: #2a2a2a;
+            border-color: #555;
         }
         
         .tag.city {
-            background: #eaeaea;
+            background: #1a1a1a;
+            border-color: #3a3a3a;
         }
         
-        /* Уведомления */
-        .note {
-            color: #666;
-            font-size: 13px;
-            text-align: center;
-            margin-top: 16px;
-        }
-        
-        /* Загрузка */
+        /* Loading */
         .loading {
             text-align: center;
-            padding: 48px 0;
+            padding: 60px 0;
         }
         
         .spinner {
-            width: 36px;
-            height: 36px;
-            border: 3px solid #e5e5e5;
-            border-top-color: #000;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #222;
+            border-top-color: #fff;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto 24px;
         }
         
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
         
-        /* Сообщения */
+        .loading p {
+            color: #888;
+            font-size: 15px;
+        }
+        
+        /* Error */
         .error {
             text-align: center;
             padding: 40px 0;
         }
         
-        .error h2 {
+        .error h3 {
             font-size: 20px;
             font-weight: 500;
-            color: #000;
+            color: #fff;
             margin-bottom: 8px;
         }
         
         .error p {
-            color: #666;
+            color: #888;
             margin-bottom: 24px;
+        }
+        
+        /* Note */
+        .note {
+            color: #666;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 20px;
         }
         
         hr {
             border: none;
-            border-top: 1px solid #e5e5e5;
-            margin: 24px 0;
+            border-top: 1px solid #222;
+            margin: 20px 0;
         }
     </style>
 </head>
@@ -260,9 +351,12 @@
             'proxy/proxy2.json'
         ];
         
+        let selectedProtocol = 'all';
+        let allProxies = [];
+        
         // ========== ЗАГРУЗКА ПРОКСИ ==========
         async function loadAllProxies() {
-            let allProxies = [];
+            let proxies = [];
             
             for (const file of PROXY_FILES) {
                 try {
@@ -270,36 +364,44 @@
                     if (res.ok) {
                         const data = await res.json();
                         const converted = convertProxy(data);
-                        allProxies = allProxies.concat(converted);
+                        proxies = proxies.concat(converted);
                     }
                 } catch (e) {
                     console.log(`Error loading ${file}:`, e);
                 }
             }
             
-            return allProxies;
+            return proxies;
         }
         
         function convertProxy(data) {
             if (!Array.isArray(data)) return [];
             
             return data.map(item => {
-                // Формат 1 (с IP/PORT)
+                // Формат 1 (IP/PORT заглавные)
                 if (item.IP && item.PORT) {
+                    let protocol = (item.PROTOCOL || 'http').toLowerCase();
                     return {
                         ip: item.IP,
                         port: item.PORT,
                         country: item.COUNTRY || 'Unknown',
                         countryShort: item.COUNTRY_SHORT || '',
-                        protocol: (item.PROTOCOL || 'http').toLowerCase(),
-                        type: (item.PROTOCOL || 'HTTP').toUpperCase(),
+                        protocol: protocol,
+                        type: protocol === 'socks5' ? 'SOCKS5' : 
+                               protocol === 'socks4' ? 'SOCKS4' : 
+                               protocol === 'https' ? 'HTTPS' : 'HTTP',
                         city: '',
                         level: 'Standard'
                     };
                 }
                 
-                // Формат 2 (с ip/port)
+                // Формат 2 (ip/port строчные)
                 if (item.ip && item.port) {
+                    let protocol = 'http';
+                    if (item.type?.toLowerCase().includes('socks5')) protocol = 'socks5';
+                    else if (item.type?.toLowerCase().includes('socks4')) protocol = 'socks4';
+                    else if (item.type?.toLowerCase().includes('https')) protocol = 'https';
+                    
                     return {
                         ip: item.ip,
                         port: item.port,
@@ -307,8 +409,10 @@
                         city: item.city || '',
                         state: item.state || '',
                         level: item.level || 'Standard',
-                        protocol: item.type?.toLowerCase() || 'http',
-                        type: item.type || 'HTTP'
+                        protocol: protocol,
+                        type: protocol === 'socks5' ? 'SOCKS5' : 
+                               protocol === 'socks4' ? 'SOCKS4' : 
+                               protocol === 'https' ? 'HTTPS' : 'HTTP'
                     };
                 }
                 
@@ -316,22 +420,33 @@
             }).filter(p => p);
         }
         
+        // ========== ФИЛЬТРАЦИЯ ПО ПРОТОКОЛУ ==========
+        function getProxiesByProtocol(protocol) {
+            if (protocol === 'all') return allProxies;
+            return allProxies.filter(p => p.protocol === protocol);
+        }
+        
+        function getProtocolCount(protocol) {
+            if (protocol === 'all') return allProxies.length;
+            return allProxies.filter(p => p.protocol === protocol).length;
+        }
+        
         // ========== ПРОВЕРКА ПРОКСИ ==========
         async function checkProxy(proxy) {
             return new Promise(resolve => {
                 setTimeout(() => {
                     resolve(Math.random() > 0.3);
-                }, 200);
+                }, 150);
             });
         }
         
-        // ========== ПОЛУЧЕНИЕ ЛУЧШЕГО ==========
-        async function getBestProxy() {
-            const all = await loadAllProxies();
-            if (all.length === 0) return null;
+        // ========== ПОЛУЧЕНИЕ ЛУЧШЕГО ПО ВЫБРАННОМУ ПРОТОКОЛУ ==========
+        async function getBestProxyByProtocol(protocol) {
+            const filtered = getProxiesByProtocol(protocol);
+            if (filtered.length === 0) return null;
             
-            const shuffled = all.sort(() => 0.5 - Math.random());
-            const toCheck = shuffled.slice(0, 12);
+            const shuffled = filtered.sort(() => 0.5 - Math.random());
+            const toCheck = shuffled.slice(0, 10);
             
             for (const proxy of toCheck) {
                 const working = await checkProxy(proxy);
@@ -382,8 +497,13 @@
         async function showMain() {
             const user = tg.initDataUnsafe?.user;
             if (!user?.id) {
-                document.getElementById('app').innerHTML = '<div class="container"><div class="header"><h1>Ошибка</h1><p>Открой через Telegram</p></div></div>';
+                document.getElementById('app').innerHTML = '<div class="container"><div class="header"><h1>ERROR</h1><p>Open via Telegram</p></div></div>';
                 return;
+            }
+            
+            // Загружаем прокси один раз
+            if (allProxies.length === 0) {
+                allProxies = await loadAllProxies();
             }
             
             const users = await loadUsers();
@@ -393,22 +513,51 @@
             const fiveDays = 5 * 24 * 60 * 60 * 1000;
             const timeLeft = (userData.lastGet + fiveDays) - now;
             
-            const allProxies = await loadAllProxies();
+            // Считаем по протоколам
+            const httpCount = getProtocolCount('http');
+            const httpsCount = getProtocolCount('https');
+            const socks5Count = getProtocolCount('socks5');
+            const socks4Count = getProtocolCount('socks4');
             
             let html = `
                 <div class="header">
-                    <h1>PROXY</h1>
-                    <p>@${user.username || 'user'}</p>
+                    <h1>PROXY SELECTOR</h1>
+                    <p>@${user.username || 'user'} • получено ${userData.count || 0}</p>
                 </div>
                 
-                <div class="stats-row">
+                <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-label">получено</div>
-                        <div class="stat-number">${userData.count || 0}</div>
+                        <div class="stat-label">Доступно</div>
+                        <div class="stat-number">${allProxies.length}<small>шт</small></div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">доступно</div>
-                        <div class="stat-number">${allProxies.length}</div>
+                        <div class="stat-label">Ваш лимит</div>
+                        <div class="stat-number">1<small>/5д</small></div>
+                    </div>
+                </div>
+                
+                <div class="section-title">Выберите протокол</div>
+                
+                <div class="protocol-grid">
+                    <div class="protocol-card ${selectedProtocol === 'all' ? 'active' : ''}" onclick="selectProtocol('all')">
+                        <div class="protocol-name">ALL</div>
+                        <div class="protocol-count">${allProxies.length}</div>
+                    </div>
+                    <div class="protocol-card ${selectedProtocol === 'http' ? 'active' : ''}" onclick="selectProtocol('http')">
+                        <div class="protocol-name">HTTP</div>
+                        <div class="protocol-count">${httpCount}</div>
+                    </div>
+                    <div class="protocol-card ${selectedProtocol === 'https' ? 'active' : ''}" onclick="selectProtocol('https')">
+                        <div class="protocol-name">HTTPS</div>
+                        <div class="protocol-count">${httpsCount}</div>
+                    </div>
+                    <div class="protocol-card ${selectedProtocol === 'socks5' ? 'active' : ''}" onclick="selectProtocol('socks5')">
+                        <div class="protocol-name">SOCKS5</div>
+                        <div class="protocol-count">${socks5Count}</div>
+                    </div>
+                    <div class="protocol-card ${selectedProtocol === 'socks4' ? 'active' : ''}" onclick="selectProtocol('socks4')">
+                        <div class="protocol-name">SOCKS4</div>
+                        <div class="protocol-count">${socks4Count}</div>
                     </div>
                 </div>
             `;
@@ -416,11 +565,11 @@
             if (timeLeft <= 0 || !userData.lastGet) {
                 html += `
                     <div class="timer-card">
-                        <div class="timer-label">можно взять</div>
+                        <div class="timer-label">Можно взять</div>
                         <div class="timer-display">✓</div>
-                        <div class="timer-note">1 раз в 5 дней</div>
+                        <div class="timer-note">1 прокси каждые 5 дней</div>
                     </div>
-                    <button class="btn" onclick="getProxy()">ПОЛУЧИТЬ ПРОКСИ</button>
+                    <button class="btn" onclick="getProxy()">ПОЛУЧИТЬ ${selectedProtocol.toUpperCase()}</button>
                 `;
             } else {
                 const days = Math.floor(timeLeft / (24*60*60*1000));
@@ -428,16 +577,22 @@
                 
                 html += `
                     <div class="timer-card">
-                        <div class="timer-label">следующий через</div>
+                        <div class="timer-label">Следующий через</div>
                         <div class="timer-display">${days}д ${hours}ч</div>
-                        <div class="timer-note">новый прокси через ${days} дня</div>
+                        <div class="timer-note">Лимит: 1 прокси / 5 дней</div>
                     </div>
-                    <button class="btn" disabled>НЕДОСТУПНО</button>
+                    <button class="btn" disabled>ЛИМИТ ИСЧЕРПАН</button>
                 `;
             }
             
             document.getElementById('app').innerHTML = html;
         }
+        
+        // ========== ВЫБОР ПРОТОКОЛА ==========
+        window.selectProtocol = function(protocol) {
+            selectedProtocol = protocol;
+            showMain();
+        };
         
         // ========== ПОЛУЧИТЬ ПРОКСИ ==========
         window.getProxy = async function() {
@@ -446,18 +601,18 @@
             document.getElementById('app').innerHTML = `
                 <div class="loading">
                     <div class="spinner"></div>
-                    <p>Проверка прокси...</p>
+                    <p>Поиск ${selectedProtocol.toUpperCase()} прокси...</p>
                 </div>
             `;
             
-            const proxy = await getBestProxy();
+            const proxy = await getBestProxyByProtocol(selectedProtocol);
             
             if (!proxy) {
                 document.getElementById('app').innerHTML = `
                     <div class="error">
-                        <h2>Нет рабочих прокси</h2>
-                        <p>Попробуйте позже</p>
-                        <button class="btn" onclick="showMain()">НАЗАД</button>
+                        <h3>Нет рабочих прокси</h3>
+                        <p>Для протокола ${selectedProtocol.toUpperCase()}</p>
+                        <button class="btn btn-secondary" onclick="showMain()">НАЗАД</button>
                     </div>
                 `;
                 return;
@@ -471,24 +626,17 @@
             };
             await saveUsers(users);
             
-            // Уведомление админу
+            // Уведомление
             await sendToTelegram(
                 ADMIN_ID,
-                `🎁 ${user.username || 'Пользователь'} взял прокси\n${proxy.ip}:${proxy.port} • ${proxy.country}`
+                `🎁 ${user.username || 'Пользователь'} взял ${proxy.type}\n${proxy.ip}:${proxy.port} • ${proxy.country}`
             );
             
-            // Теги для отображения
-            let tags = '';
-            
-            if (proxy.protocol) {
-                tags += `<span class="tag protocol">${proxy.protocol.toUpperCase()}</span>`;
-            }
-            
-            if (proxy.countryShort) {
-                tags += `<span class="tag country">${proxy.countryShort}</span>`;
-            } else if (proxy.country) {
-                tags += `<span class="tag country">${proxy.country.slice(0, 2).toUpperCase()}</span>`;
-            }
+            // Теги
+            let tags = `
+                <span class="tag protocol">${proxy.type}</span>
+                <span class="tag country">${proxy.countryShort || proxy.country.slice(0, 2).toUpperCase()}</span>
+            `;
             
             if (proxy.level && proxy.level !== 'Standard') {
                 tags += `<span class="tag level">${proxy.level}</span>`;
@@ -501,7 +649,7 @@
             document.getElementById('app').innerHTML = `
                 <div class="header">
                     <h1>ПРОКСИ ГОТОВ</h1>
-                    <p>рабочий • проверен</p>
+                    <p>${proxy.type} • проверен</p>
                 </div>
                 
                 <div class="proxy-card">
@@ -512,7 +660,7 @@
                 </div>
                 
                 <button class="btn" onclick="copyProxy('${proxy.ip}:${proxy.port}')">КОПИРОВАТЬ</button>
-                <button class="btn btn-secondary" onclick="showMain()">НА ГЛАВНУЮ</button>
+                <button class="btn btn-secondary" onclick="showMain()">НОВЫЙ ВЫБОР</button>
                 
                 <div class="note">
                     Следующий прокси через 5 дней
