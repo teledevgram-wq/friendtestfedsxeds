@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROXY | SELECTOR</title>
+    <title>PROXY</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -21,7 +21,7 @@
             overflow-x: hidden;
         }
         
-        /* Треугольники как на фото */
+        /* Треугольники */
         .triangles-bg {
             position: fixed;
             top: 0;
@@ -30,7 +30,6 @@
             height: 100%;
             z-index: 0;
             pointer-events: none;
-            opacity: 0.15;
         }
         
         .triangle {
@@ -44,17 +43,16 @@
             transition: all 0.3s ease;
             pointer-events: auto;
             cursor: default;
-            opacity: 0.3;
+            opacity: 0.15;
         }
         
         .triangle:hover {
-            opacity: 0.8;
+            opacity: 0.6;
             transform: scale(1.1) rotate(5deg) !important;
-            border-bottom-color: #333;
         }
         
         .container {
-            max-width: 480px;
+            max-width: 440px;
             margin: 0 auto;
             padding: 24px 20px;
             position: relative;
@@ -66,15 +64,15 @@
         
         /* Header */
         .header {
-            margin-bottom: 28px;
+            margin-bottom: 32px;
             padding-bottom: 16px;
             border-bottom: 2px solid #000;
         }
         
         .header h1 {
-            font-size: 36px;
+            font-size: 40px;
             font-weight: 700;
-            letter-spacing: -0.5px;
+            letter-spacing: -1px;
             color: #000;
             margin-bottom: 4px;
             text-transform: uppercase;
@@ -87,18 +85,18 @@
         }
         
         /* Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        .stats-row {
+            display: flex;
             gap: 12px;
-            margin-bottom: 28px;
+            margin-bottom: 32px;
         }
         
         .stat-card {
             background: #f5f5f5;
+            border: 2px solid #000;
             border-radius: 12px;
             padding: 18px 16px;
-            border: 2px solid #000;
+            flex: 1;
         }
         
         .stat-label {
@@ -124,72 +122,14 @@
             margin-left: 4px;
         }
         
-        /* Protocol Selector */
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #000;
-            margin-bottom: 16px;
-            letter-spacing: -0.2px;
-        }
-        
-        .protocol-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 28px;
-        }
-        
-        .protocol-card {
-            background: #f5f5f5;
-            border: 2px solid #000;
-            border-radius: 12px;
-            padding: 16px 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .protocol-card:hover {
-            background: #000;
-            border-color: #000;
-        }
-        
-        .protocol-card:hover .protocol-name,
-        .protocol-card:hover .protocol-count {
-            color: #fff;
-        }
-        
-        .protocol-card.active {
-            background: #000;
-            border-color: #000;
-        }
-        
-        .protocol-card.active .protocol-name,
-        .protocol-card.active .protocol-count {
-            color: #fff;
-        }
-        
-        .protocol-name {
-            font-size: 15px;
-            font-weight: 600;
-            color: #000;
-            margin-bottom: 4px;
-        }
-        
-        .protocol-count {
-            font-size: 13px;
-            color: #666;
-            font-weight: 500;
-        }
-        
         /* Timer */
         .timer-card {
             background: #f5f5f5;
             border: 2px solid #000;
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
         }
         
         .timer-label {
@@ -198,11 +138,11 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.3px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         
         .timer-display {
-            font-size: 38px;
+            font-size: 42px;
             font-weight: 600;
             color: #000;
             font-family: 'SF Mono', 'Monaco', monospace;
@@ -213,7 +153,7 @@
             color: #666;
             font-size: 13px;
             font-weight: 500;
-            margin-top: 10px;
+            margin-top: 12px;
         }
         
         /* Button */
@@ -258,13 +198,13 @@
         .proxy-card {
             background: #f5f5f5;
             border: 2px solid #000;
-            border-radius: 16px;
-            padding: 24px;
+            border-radius: 12px;
+            padding: 28px;
             margin: 20px 0;
         }
         
         .proxy-ip {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 600;
             color: #000;
             font-family: 'SF Mono', 'Monaco', monospace;
@@ -277,10 +217,11 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+            justify-content: center;
         }
         
         .tag {
-            padding: 6px 14px;
+            padding: 6px 16px;
             border-radius: 30px;
             font-size: 13px;
             font-weight: 600;
@@ -352,9 +293,9 @@
             background: #fff;
             border: 2px solid #000;
             border-radius: 12px;
-            padding: 24px;
+            padding: 32px 24px;
             text-align: center;
-            margin: 40px 0;
+            margin: 60px 0;
         }
         
         .telegram-warning h2 {
@@ -365,7 +306,7 @@
         
         .telegram-warning p {
             color: #444;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         
         .telegram-link {
@@ -373,34 +314,37 @@
             background: #000;
             color: #fff;
             text-decoration: none;
-            padding: 14px 24px;
+            padding: 14px 28px;
             border-radius: 12px;
             font-weight: 600;
+            border: 2px solid #000;
+        }
+        
+        .telegram-link:hover {
+            background: #333;
         }
     </style>
 </head>
 <body>
-    <!-- Треугольники как на фото -->
+    <!-- Треугольники -->
     <div class="triangles-bg" id="triangles"></div>
     
     <div class="container" id="app"></div>
 
     <script>
-        // ========== СОЗДАНИЕ ТРЕУГОЛЬНИКОВ ==========
+        // ========== ТРЕУГОЛЬНИКИ ==========
         function createTriangles() {
             const container = document.getElementById('triangles');
-            const count = 25; // Количество треугольников
+            const count = 30;
             
             for (let i = 0; i < count; i++) {
                 const triangle = document.createElement('div');
                 triangle.className = 'triangle';
                 
-                // Случайное положение
                 const x = Math.random() * 100;
                 const y = Math.random() * 100;
+                const size = 30 + Math.random() * 70;
                 
-                // Случайный размер
-                const size = 30 + Math.random() * 60;
                 triangle.style.borderLeftWidth = size/2 + 'px';
                 triangle.style.borderRightWidth = size/2 + 'px';
                 triangle.style.borderBottomWidth = size * 0.87 + 'px';
@@ -408,21 +352,17 @@
                 triangle.style.borderRightColor = 'transparent';
                 triangle.style.borderBottomColor = '#000';
                 
-                // Позиция
                 triangle.style.left = x + '%';
                 triangle.style.top = y + '%';
                 
-                // Случайный поворот
                 const rotation = Math.random() * 360;
                 triangle.style.transform = `rotate(${rotation}deg)`;
                 
-                // Сохраняем данные для мыши
                 triangle.dataset.originalX = x;
                 triangle.dataset.originalY = y;
                 triangle.dataset.originalRotate = rotation;
                 triangle.dataset.size = size;
                 
-                // Добавляем обработчики
                 triangle.addEventListener('mousemove', (e) => {
                     const rect = triangle.getBoundingClientRect();
                     const centerX = rect.left + rect.width / 2;
@@ -434,7 +374,6 @@
                     const deltaX = mouseX - centerX;
                     const deltaY = mouseY - centerY;
                     
-                    // Прилипание к курсору
                     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
                     const maxDistance = 200;
                     
@@ -444,14 +383,13 @@
                         const moveY = deltaY * pull * 0.3;
                         
                         triangle.style.transform = `translate(${moveX}px, ${moveY}px) rotate(${parseFloat(triangle.dataset.originalRotate) + pull * 10}deg)`;
-                        triangle.style.opacity = 0.5 + pull * 0.5;
+                        triangle.style.opacity = 0.3 + pull * 0.5;
                     }
                 });
                 
                 triangle.addEventListener('mouseleave', () => {
-                    // Возвращаем на место
                     triangle.style.transform = `rotate(${triangle.dataset.originalRotate}deg)`;
-                    triangle.style.opacity = '0.3';
+                    triangle.style.opacity = '0.15';
                 });
                 
                 container.appendChild(triangle);
@@ -464,7 +402,7 @@
         
         const BOT_TOKEN = '8607602990:AAHJIhzWDMBd0CnxOwVtZLOyMYl6joEE55c';
         const BOT_USERNAME = 'BestFreeProxyBot';
-        const ADMIN_ID = 123456789;
+        const ADMIN_ID = 7596387134;
         
         const BIN_ID = '69ab380043b1c97be9bb3caa';
         const API_KEY = '$2a$10$F0cAPsC5hR7IdQ2aLV4CDeUmRXIX7F1lk1FYcF/WO4zLjpS4yCu3a';
@@ -474,16 +412,15 @@
             'proxy/proxy2.json'
         ];
         
-        let selectedProtocol = 'all';
         let allProxies = [];
         
         // ========== ПРОВЕРКА TELEGRAM ==========
         if (!isTelegram) {
             document.getElementById('app').innerHTML = `
                 <div class="telegram-warning">
-                    <h2>🔒 Доступ через Telegram</h2>
+                    <h2>🔒 TELEGRAM ONLY</h2>
                     <p>Этот сервис работает только внутри Telegram</p>
-                    <a href="https://t.me/${BOT_USERNAME}" class="telegram-link">Открыть в Telegram</a>
+                    <a href="https://t.me/${BOT_USERNAME}" class="telegram-link">ОТКРЫТЬ В TELEGRAM</a>
                 </div>
             `;
         } else {
@@ -527,7 +464,6 @@
                         type: protocol === 'socks5' ? 'SOCKS5' : 
                                protocol === 'socks4' ? 'SOCKS4' : 
                                protocol === 'https' ? 'HTTPS' : 'HTTP',
-                        city: '',
                         level: 'Standard'
                     };
                 }
@@ -544,7 +480,6 @@
                         port: item.port,
                         country: item.country || 'Unknown',
                         city: item.city || '',
-                        state: item.state || '',
                         level: item.level || 'Standard',
                         protocol: protocol,
                         type: protocol === 'socks5' ? 'SOCKS5' : 
@@ -557,17 +492,6 @@
             }).filter(p => p);
         }
         
-        // ========== ФИЛЬТРАЦИЯ ПО ПРОТОКОЛУ ==========
-        function getProxiesByProtocol(protocol) {
-            if (protocol === 'all') return allProxies;
-            return allProxies.filter(p => p.protocol === protocol);
-        }
-        
-        function getProtocolCount(protocol) {
-            if (protocol === 'all') return allProxies.length;
-            return allProxies.filter(p => p.protocol === protocol).length;
-        }
-        
         // ========== ПРОВЕРКА ПРОКСИ ==========
         async function checkProxy(proxy) {
             return new Promise(resolve => {
@@ -577,12 +501,11 @@
             });
         }
         
-        // ========== ПОЛУЧЕНИЕ ЛУЧШЕГО ПО ВЫБРАННОМУ ПРОТОКОЛУ ==========
-        async function getBestProxyByProtocol(protocol) {
-            const filtered = getProxiesByProtocol(protocol);
-            if (filtered.length === 0) return null;
+        // ========== ПОЛУЧЕНИЕ ЛУЧШЕГО ПРОКСИ ==========
+        async function getBestProxy() {
+            if (allProxies.length === 0) return null;
             
-            const shuffled = filtered.sort(() => 0.5 - Math.random());
+            const shuffled = allProxies.sort(() => 0.5 - Math.random());
             const toCheck = shuffled.slice(0, 10);
             
             for (const proxy of toCheck) {
@@ -619,7 +542,7 @@
             } catch (e) {}
         }
         
-        // ========== TELEGRAM ==========
+        // ========== TELEGRAM УВЕДОМЛЕНИЕ ==========
         async function sendToTelegram(chatId, text) {
             try {
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -633,10 +556,7 @@
         // ========== ОСНОВНОЙ ЭКРАН ==========
         async function init() {
             const user = tg.initDataUnsafe?.user;
-            if (!user?.id) {
-                document.getElementById('app').innerHTML = '<div class="container"><div class="header"><h1>ERROR</h1><p>Open via Telegram</p></div></div>';
-                return;
-            }
+            if (!user?.id) return;
             
             // Загружаем прокси
             if (allProxies.length === 0) {
@@ -650,51 +570,20 @@
             const fiveDays = 5 * 24 * 60 * 60 * 1000;
             const timeLeft = (userData.lastGet + fiveDays) - now;
             
-            // Считаем по протоколам
-            const httpCount = getProtocolCount('http');
-            const httpsCount = getProtocolCount('https');
-            const socks5Count = getProtocolCount('socks5');
-            const socks4Count = getProtocolCount('socks4');
-            
             let html = `
                 <div class="header">
                     <h1>PROXY</h1>
-                    <p>@${user.username || 'user'} • ${userData.count || 0} прокси</p>
+                    <p>@${user.username || 'user'} • получено ${userData.count || 0}</p>
                 </div>
                 
-                <div class="stats-grid">
+                <div class="stats-row">
                     <div class="stat-card">
-                        <div class="stat-label">Доступно</div>
+                        <div class="stat-label">доступно</div>
                         <div class="stat-number">${allProxies.length}<small>шт</small></div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Лимит</div>
+                        <div class="stat-label">лимит</div>
                         <div class="stat-number">1<small>/5д</small></div>
-                    </div>
-                </div>
-                
-                <div class="section-title">Протокол</div>
-                
-                <div class="protocol-grid">
-                    <div class="protocol-card ${selectedProtocol === 'all' ? 'active' : ''}" onclick="selectProtocol('all')">
-                        <div class="protocol-name">ALL</div>
-                        <div class="protocol-count">${allProxies.length}</div>
-                    </div>
-                    <div class="protocol-card ${selectedProtocol === 'http' ? 'active' : ''}" onclick="selectProtocol('http')">
-                        <div class="protocol-name">HTTP</div>
-                        <div class="protocol-count">${httpCount}</div>
-                    </div>
-                    <div class="protocol-card ${selectedProtocol === 'https' ? 'active' : ''}" onclick="selectProtocol('https')">
-                        <div class="protocol-name">HTTPS</div>
-                        <div class="protocol-count">${httpsCount}</div>
-                    </div>
-                    <div class="protocol-card ${selectedProtocol === 'socks5' ? 'active' : ''}" onclick="selectProtocol('socks5')">
-                        <div class="protocol-name">SOCKS5</div>
-                        <div class="protocol-count">${socks5Count}</div>
-                    </div>
-                    <div class="protocol-card ${selectedProtocol === 'socks4' ? 'active' : ''}" onclick="selectProtocol('socks4')">
-                        <div class="protocol-name">SOCKS4</div>
-                        <div class="protocol-count">${socks4Count}</div>
                     </div>
                 </div>
             `;
@@ -702,11 +591,11 @@
             if (timeLeft <= 0 || !userData.lastGet) {
                 html += `
                     <div class="timer-card">
-                        <div class="timer-label">Доступно</div>
+                        <div class="timer-label">можно взять</div>
                         <div class="timer-display">✓</div>
-                        <div class="timer-note">Можно взять ${selectedProtocol.toUpperCase()}</div>
+                        <div class="timer-note">1 прокси каждые 5 дней</div>
                     </div>
-                    <button class="btn" onclick="getProxy()">ПОЛУЧИТЬ</button>
+                    <button class="btn" onclick="getProxy()">ПОЛУЧИТЬ ПРОКСИ</button>
                 `;
             } else {
                 const days = Math.floor(timeLeft / (24*60*60*1000));
@@ -714,22 +603,16 @@
                 
                 html += `
                     <div class="timer-card">
-                        <div class="timer-label">Через</div>
+                        <div class="timer-label">следующий через</div>
                         <div class="timer-display">${days}д ${hours}ч</div>
-                        <div class="timer-note">Лимит: 1 раз в 5 дней</div>
+                        <div class="timer-note">лимит: 1 раз в 5 дней</div>
                     </div>
-                    <button class="btn" disabled>ЛИМИТ</button>
+                    <button class="btn" disabled>ЛИМИТ ИСЧЕРПАН</button>
                 `;
             }
             
             document.getElementById('app').innerHTML = html;
         }
-        
-        // ========== ВЫБОР ПРОТОКОЛА ==========
-        window.selectProtocol = function(protocol) {
-            selectedProtocol = protocol;
-            init();
-        };
         
         // ========== ПОЛУЧИТЬ ПРОКСИ ==========
         window.getProxy = async function() {
@@ -738,17 +621,17 @@
             document.getElementById('app').innerHTML = `
                 <div class="loading">
                     <div class="spinner"></div>
-                    <p>Поиск ${selectedProtocol.toUpperCase()}...</p>
+                    <p>Поиск рабочего прокси...</p>
                 </div>
             `;
             
-            const proxy = await getBestProxyByProtocol(selectedProtocol);
+            const proxy = await getBestProxy();
             
             if (!proxy) {
                 document.getElementById('app').innerHTML = `
                     <div class="error">
-                        <h3>Нет рабочих</h3>
-                        <p>${selectedProtocol.toUpperCase()}</p>
+                        <h3>Нет рабочих прокси</h3>
+                        <p>Попробуйте позже</p>
                         <button class="btn btn-secondary" onclick="init()">НАЗАД</button>
                     </div>
                 `;
@@ -763,10 +646,10 @@
             };
             await saveUsers(users);
             
-            // Уведомление
+            // Уведомление админу
             await sendToTelegram(
                 ADMIN_ID,
-                `🎁 ${user.username || 'User'} взял ${proxy.type}\n${proxy.ip}:${proxy.port} • ${proxy.country}`
+                `🎁 ${user.username || 'User'} взял прокси\n${proxy.ip}:${proxy.port} • ${proxy.country} • ${proxy.type}`
             );
             
             // Теги
@@ -782,7 +665,7 @@
             document.getElementById('app').innerHTML = `
                 <div class="header">
                     <h1>ГОТОВО</h1>
-                    <p>${proxy.type}</p>
+                    <p>${proxy.type} • проверен</p>
                 </div>
                 
                 <div class="proxy-card">
@@ -793,10 +676,10 @@
                 </div>
                 
                 <button class="btn" onclick="copyProxy('${proxy.ip}:${proxy.port}')">КОПИРОВАТЬ</button>
-                <button class="btn btn-secondary" onclick="init()">НОВЫЙ</button>
+                <button class="btn btn-secondary" onclick="init()">НА ГЛАВНУЮ</button>
                 
                 <div class="note">
-                    Следующий через 5 дней
+                    Следующий прокси через 5 дней
                 </div>
             `;
         };
@@ -806,14 +689,13 @@
             navigator.clipboard?.writeText(proxy);
             tg.showPopup({ 
                 title: 'Скопировано', 
-                message: 'Прокси в буфере',
+                message: 'Прокси в буфере обмена',
                 buttons: [{ type: 'ok' }]
             });
         };
         
-        // ========== СОЗДАЕМ ТРЕУГОЛЬНИКИ ==========
+        // ========== ЗАПУСКАЕМ ТРЕУГОЛЬНИКИ ==========
         createTriangles();
     </script>
 </body>
 </html>
-
