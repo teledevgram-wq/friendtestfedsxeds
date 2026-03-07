@@ -296,75 +296,10 @@
     </style>
 </head>
 <body>
-    <!-- Треугольники -->
-    <div class="triangles-bg" id="triangles"></div>
     
     <div class="container" id="app"></div>
 
     <script>
-        // ========== ТРЕУГОЛЬНИКИ ==========
-        function createTriangles() {
-            const container = document.getElementById('triangles');
-            const count = 1;
-            
-            for (let i = 0; i < count; i++) {
-                const triangle = document.createElement('div');
-                triangle.className = 'triangle';
-                
-                const x = Math.random() * 100;
-                const y = Math.random() * 100;
-                const size = 30 + Math.random() * 70;
-                
-                triangle.style.borderLeftWidth = size/2 + 'px';
-                triangle.style.borderRightWidth = size/2 + 'px';
-                triangle.style.borderBottomWidth = size * 0.87 + 'px';
-                triangle.style.borderLeftColor = 'transparent';
-                triangle.style.borderRightColor = 'transparent';
-                triangle.style.borderBottomColor = '#000';
-                
-                triangle.style.left = x + '%';
-                triangle.style.top = y + '%';
-                
-                const rotation = Math.random() * 360;
-                triangle.style.transform = `rotate(${rotation}deg)`;
-                
-                triangle.dataset.originalX = x;
-                triangle.dataset.originalY = y;
-                triangle.dataset.originalRotate = rotation;
-                triangle.dataset.size = size;
-                
-                triangle.addEventListener('mousemove', (e) => {
-                    const rect = triangle.getBoundingClientRect();
-                    const centerX = rect.left + rect.width / 2;
-                    const centerY = rect.top + rect.height / 2;
-                    
-                    const mouseX = e.clientX;
-                    const mouseY = e.clientY;
-                    
-                    const deltaX = mouseX - centerX;
-                    const deltaY = mouseY - centerY;
-                    
-                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                    const maxDistance = 200;
-                    
-                    if (distance < maxDistance) {
-                        const pull = 1 - distance / maxDistance;
-                        const moveX = deltaX * pull * 0.3;
-                        const moveY = deltaY * pull * 0.3;
-                        
-                        triangle.style.transform = `translate(${moveX}px, ${moveY}px) rotate(${parseFloat(triangle.dataset.originalRotate) + pull * 10}deg)`;
-                        triangle.style.opacity = 0.3 + pull * 0.5;
-                    }
-                });
-                
-                triangle.addEventListener('mouseleave', () => {
-                    triangle.style.transform = `rotate(${triangle.dataset.originalRotate}deg)`;
-                    triangle.style.opacity = '0.15';
-                });
-                
-                container.appendChild(triangle);
-            }
-        }
         
         // ========== КОНФИГ ==========
         const tg = window.Telegram.WebApp;
@@ -664,10 +599,9 @@
             });
         };
         
-        // ========== ЗАПУСКАЕМ ТРЕУГОЛЬНИКИ ==========
-        createTriangles();
     </script>
 </body>
 </html>
+
 
 
