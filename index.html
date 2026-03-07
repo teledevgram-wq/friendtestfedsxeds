@@ -397,29 +397,16 @@
             }).filter(p => p);
         }
         
-        // ========== ПРОВЕРКА ПРОКСИ ==========
-        async function checkProxy(proxy) {
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    resolve(Math.random() > 0.3);
-                }, 150);
-            });
-        }
+
         
         // ========== ПОЛУЧЕНИЕ ЛУЧШЕГО ПРОКСИ ==========
-        async function getBestProxy() {
-            if (allProxies.length === 0) return null;
-            
-            const shuffled = allProxies.sort(() => 0.5 - Math.random());
-            const toCheck = shuffled.slice(0, 10);
-            
-            for (const proxy of toCheck) {
-                const working = await checkProxy(proxy);
-                if (working) return proxy;
-            }
-            
-            return null;
-        }
+async function getBestProxy() {
+    if (allProxies.length === 0) return null;
+    
+    // Просто берем случайный прокси без проверки
+    const randomIndex = Math.floor(Math.random() * allProxies.length);
+    return allProxies[randomIndex];
+}
         
         // ========== JSONBIN ==========
         async function loadUsers() {
@@ -472,8 +459,8 @@
             const userData = users[user.id] || { lastGet: 0, count: 0 };
             
             const now = Date.now();
-            const fiveDays = 5 * 24 * 60 * 60 * 1000;
-            const timeLeft = (userData.lastGet + fiveDays) - now;
+            const twelveHours = 12 * 60 * 60 * 1000; // 12 часов в миллисекундах
+            const timeLeft = (userData.lastGet + twelveHours) - now;
             
             let html = `
                 <div class="header">
@@ -488,7 +475,7 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">лимит</div>
-                        <div class="stat-number">1<small>/5д</small></div>
+                        <div class="stat-number">1<small>/12 часов</small></div>
                     </div>
                 </div>
             `;
@@ -498,7 +485,7 @@
                     <div class="timer-card">
                         <div class="timer-label">можно взять</div>
                         <div class="timer-display">✓</div>
-                        <div class="timer-note">1 прокси каждые 5 дней</div>
+                        <div class="timer-note">1 прокси каждые 12 часов</div>
                     </div>
                     <button class="btn" onclick="getProxy()">ПОЛУЧИТЬ ПРОКСИ</button>
                 `;
@@ -510,7 +497,7 @@
                     <div class="timer-card">
                         <div class="timer-label">следующий через</div>
                         <div class="timer-display">${days}д ${hours}ч</div>
-                        <div class="timer-note">лимит: 1 раз в 5 дней</div>
+                        <div class="timer-note">лимит: 1 раз в 12 часов</div>
                     </div>
                     <button class="btn" disabled>ЛИМИТ ИСЧЕРПАН</button>
                 `;
@@ -584,7 +571,7 @@
                 <button class="btn btn-secondary" onclick="init()">НА ГЛАВНУЮ</button>
                 
                 <div class="note">
-                    Следующий прокси через 5 дней
+                    Следующий прокси через 12 часов
                 </div>
             `;
         };
@@ -602,6 +589,7 @@
     </script>
 </body>
 </html>
+
 
 
 
